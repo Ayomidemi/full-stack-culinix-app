@@ -1,0 +1,27 @@
+@import "/src/global-style/index.scss";
+
+@mixin flexx {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+}
+
+.home_wrapper {
+  display: flex;
+  flex-direction: column;
+  width: 100%;
+  min-height: 80vh;
+  position: relative;
+  padding: 20px;
+
+  div {
+    width: 50%;
+  }
+}
+
+@media (max-width: 500px) {
+  .footer {
+    gap: 10px;
+    flex-direction: column;
+  }
+}

@@ -1,0 +1,101 @@
+@import "/src/global-style/index.scss";
+
+.input_wrap {
+  position: relative;
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  padding: 0.7rem 0;
+  padding-bottom: 0;
+}
+
+.input {
+  border: 1px solid #7946aa;
+  width: 100%;
+  border-radius: 10px;
+  height: 50px;
+  padding: 0px 15px;
+  padding-right: 40px;
+  font-size: 14px;
+  color: #000 !important;
+  background: #f6f2f9;
+
+  &:focus {
+    outline: none;
+  }
+  &:disabled {
+    opacity: 0.4;
+    cursor: not-allowed;
+  }
+}
+
+.input:-webkit-autofill {
+  box-shadow: 0 0 0 30px #f6f2f9 inset;
+  background-color: #f6f2f9 !important;
+  -webkit-text-fill-color: #00000099 !important;
+}
+#ezeInput:-webkit-autofill {
+  box-shadow: 0 0 0 30px #f6f2f9 inset;
+  background-color: #f6f2f9 !important;
+}
+
+#ezeInput:-internal-autofill-selected {
+  box-shadow: 0 0 0 30px #f6f2f9 inset;
+  background-color: -internal-light-dark(#f6f2f9) !important;
+  background: #f6f2f9 !important;
+}
+
+.label {
+  padding: 0;
+  position: absolute;
+  font-weight: 400;
+  text-transform: capitalize;
+  transition: all 0.1s ease;
+  top: 25px;
+  left: 17px;
+  font-size: 16px;
+
+  p {
+    text-transform: capitalize;
+  }
+}
+
+.active {
+  font-size: 12px;
+  z-index: 1;
+  padding: 0 4px;
+  border: 1px solid #ffffff;
+  top: 1px;
+  left: 15px;
+  background: #ffffff;
+}
+
+.error {
+  input {
+    border: 1px solid red !important;
+  }
+  .label {
+    color: red !important;
+  }
+}
+
+.preffix {
+  position: absolute;
+  top: 50%;
+  transform: translateY(-50%);
+  left: 5px;
+  font-size: 12px;
+  color: #000000;
+}
+
+.cancel {
+  position: absolute;
+  top: 25px;
+  right: 2px;
+  border: none;
+  background: none;
+  width: 45px !important;
+  height: 25px !important;
+  padding: 0 !important;
+  cursor: pointer;
+}

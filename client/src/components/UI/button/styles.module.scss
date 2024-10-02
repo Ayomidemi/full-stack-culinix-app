@@ -1,0 +1,52 @@
+@import "/src/global-style/index.scss";
+
+.wrap {
+  button {
+    padding: 1rem 2rem;
+    border-radius: 10px;
+    font-size: 16px;
+    font-weight: 400;
+    border: none;
+    cursor: pointer;
+    transition: all 0.1s ease;
+    width: 100%;
+
+    &:disabled {
+      background: #1d1b201f;
+      color: rgba(29, 27, 32, 0.5);
+      cursor: not-allowed;
+      font-weight: 400;
+      &:hover {
+        background: #1d1b201f;
+      }
+    }
+  }
+  .primary {
+    background: #3c0174;
+    color: #fff;
+
+    &:hover {
+      background: darken(#3c0174, 10%);
+    }
+  }
+  .secondary {
+    background: #fff;
+    color: #3c0174;
+    border: 1px solid #3c0174;
+  }
+
+  .outline {
+    background: #3c0174;
+    border-radius: 4px;
+    color: #fff;
+    
+    &:hover {
+      background: #0a5dca;
+    }
+  }
+
+  .transparent {
+    background: #E3E1E5;
+    color: #3c0174 !important;
+  }
+}
