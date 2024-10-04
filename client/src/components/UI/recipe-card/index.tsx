@@ -1,14 +1,16 @@
 import { IoEyeOutline } from "react-icons/io5";
 import { BiLike, BiDislike } from "react-icons/bi";
+import { MdFavorite } from "react-icons/md";
 
 import styles from "./styles.module.scss";
 
 type Props = {
   data?: object;
   mine?: boolean;
+  favorite?: boolean;
 };
 
-const RecipeCard = ({ mine = false }: Props) => {
+const RecipeCard = ({ mine = false, favorite = false }: Props) => {
   return (
     <div className={styles.card_wrap}>
       <div className={styles.card_container}>
@@ -35,13 +37,21 @@ const RecipeCard = ({ mine = false }: Props) => {
         </div>
 
         <div className={styles.footer_right}>
-          <div className={styles.footer_idv}>
-            <BiLike /> <p>7</p>
-          </div>
+          {favorite ? (
+            <div className={styles.footer_idv}>
+              <MdFavorite /> <p>Unsave</p>
+            </div>
+          ) : (
+            <>
+              <div className={styles.footer_idv}>
+                <BiLike /> <p>7</p>
+              </div>
 
-          <div className={styles.footer_idv}>
-            <BiDislike /> <p>2</p>
-          </div>
+              <div className={styles.footer_idv}>
+                <BiDislike /> <p>2</p>
+              </div>
+            </>
+          )}
 
           <div className={styles.footer_idv}>
             <p>Sept 22, 2024</p>
