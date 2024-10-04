@@ -39,6 +39,7 @@ const Pagination = ({ totalPages, currentPage, onPageChange }: Props) => {
           {number}
         </p>
       ))}
+      
 
       <button
         onClick={() => onPageChange(currentPage + 1)}

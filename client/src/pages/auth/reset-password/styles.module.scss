@@ -1,0 +1,109 @@
+@mixin flexx {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+}
+
+.signup_wrapper {
+  @include flexx;
+  flex-direction: column;
+  width: 100%;
+  padding: 20px;
+
+  .go_back {
+    width: 100%;
+
+    svg {
+      cursor: pointer;
+    }
+  }
+
+  .signup_logo {
+    margin: 30px 0;
+  }
+
+  .signup_body {
+    @include flexx;
+    flex-direction: column;
+    background: #fdfdfd;
+    box-shadow: -4px -4px 8px #d5adfb40,
+      4px 4px 8px rgba(213, 173, 251, 0.25);
+    border-radius: 20px;
+    width: 45%;
+    padding: 30px;
+
+    .signup_body_cont {
+      width: 100%;
+    }
+
+    .signup_body_text {
+      @include flexx;
+      flex-direction: column;
+      margin: 20px 0;
+      gap: 10px;
+      text-align: center;
+
+      p {
+        max-width: 70%;
+      }
+    }
+
+    form {
+      display: flex;
+      flex-direction: column;
+      margin: 20px;
+      gap: 15px;
+
+      .wrong_password {
+        color: red;
+        font-size: 12px;
+      }
+    }
+
+    .signup_footer {
+      display: flex;
+      flex-direction: column;
+      margin-top: 10px;
+
+      p {
+        width: 100%;
+        text-align: center;
+        margin-top: 10px;
+        font-size: 14px;
+      }
+
+      a {
+        text-decoration: underline;
+      }
+    }
+  }
+}
+
+@media (max-width: 767px) {
+  .signup_wrapper {
+    .signup_body {
+      width: 70%;
+
+      .signup_body_text {
+        p {
+          max-width: 95%;
+        }
+      }
+    }
+  }
+}
+
+@media (max-width: 600px) {
+  .signup_wrapper {
+    .signup_body {
+      box-shadow: none;
+      background: none;
+      width: 95%;
+      padding: 10px;
+
+      form {
+        margin: 0px;
+      }
+    }
+  }
+}

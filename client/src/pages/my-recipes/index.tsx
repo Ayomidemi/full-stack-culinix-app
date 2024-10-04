@@ -3,7 +3,7 @@ import RecipeCard from "../../components/UI/recipe-card";
 import SearchInput from "../../components/UI/search-input";
 import styles from "./styles.module.scss";
 
-const Home = () => {
+const MyRecipes = () => {
   const handleSearch = (value: string) => {
     console.log(value);
   };
@@ -12,7 +12,7 @@ const Home = () => {
     <div className={styles.home_conntainer}>
       <div className={styles.home_wrapper}>
         <div className={styles.home_header}>
-          <h2>All Recipes</h2>
+          <h2>My Recipes</h2>
           <SearchInput
             placeholder="Search"
             name="recipe"
@@ -21,10 +21,10 @@ const Home = () => {
         </div>
 
         <div className={styles.home_body}>
-          <RecipeCard />
-          <RecipeCard />
-          <RecipeCard />
-          <RecipeCard />
+          <RecipeCard mine={true} />
+          <RecipeCard mine={true} />
+          <RecipeCard mine={true} />
+          <RecipeCard mine={true} />
         </div>
 
         <div className={styles.page_wrapper}>
@@ -35,4 +35,4 @@ const Home = () => {
   );
 };
 
-export default Home;
+export default MyRecipes;

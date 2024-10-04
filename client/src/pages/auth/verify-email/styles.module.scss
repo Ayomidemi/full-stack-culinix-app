@@ -1,0 +1,85 @@
+@mixin flexx {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+}
+
+.signup_wrapper {
+  @include flexx;
+  flex-direction: column;
+  width: 100%;
+  padding: 20px;
+
+  .signup_logo {
+    margin: 30px 0;
+  }
+
+  .signup_body {
+    @include flexx;
+    flex-direction: column;
+    width: 50%;
+    padding: 10px;
+
+    .signup_body_cont {
+      width: 100%;
+    }
+
+    .signup_body_text {
+      @include flexx;
+      flex-direction: column;
+      margin: 20px 0;
+      gap: 10px;
+      text-align: center;
+
+      p {
+        max-width: 70%;
+        line-height: 24px;
+      }
+    }
+
+    .signup_footer {
+      display: flex;
+      flex-direction: column;
+      margin-top: 10px;
+
+      button {
+        text-decoration: underline;
+        text-align: center;
+        margin-top: 10px;
+        font-size: 18px;
+        color: #3c0174;
+        background: none;
+        border: none;
+        font-weight: 600;
+      }
+    }
+  }
+}
+
+@media (max-width: 767px) {
+  .signup_wrapper {
+    .signup_body {
+      width: 70%;
+
+      .signup_body_text {
+        p {
+          max-width: 95%;
+        }
+      }
+    }
+  }
+}
+
+@media (max-width: 600px) {
+  .signup_wrapper {
+    .signup_body {
+      box-shadow: none;
+      background: none;
+      width: 95%;
+
+      form {
+        margin: 0px;
+      }
+    }
+  }
+}
