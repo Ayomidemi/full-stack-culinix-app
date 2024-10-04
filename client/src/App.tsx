@@ -6,7 +6,7 @@ import { UserContextProvider } from "./components/UserContext";
 import Layout from "./components/layout";
 import Home from "./pages/home";
 import Login from "./pages/Login";
-import SignUp from "./pages/SignUp";
+import SignUp from "./pages/sign-up/SignUp";
 
 axios.defaults.baseURL = "http://localhost:4000";
 axios.defaults.withCredentials = true;

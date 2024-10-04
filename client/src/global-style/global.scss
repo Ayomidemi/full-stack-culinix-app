@@ -61,3 +61,12 @@ input[type="number"]::-webkit-outer-spin-button {
 button {
   cursor: pointer;
 }
+
+.logo {
+  img {
+    width: 100px;
+    height: 50px;
+    cursor: pointer;
+    object-fit: contain;
+  }
+}

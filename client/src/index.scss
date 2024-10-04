@@ -1,3 +1,5 @@
+@import "/src/global-style/index.scss";
+
 p,
 h1,
 h2,
@@ -7,15 +9,8 @@ h5,
 h6,
 button,
 a,
-input,
-body {
+input {
   margin: 0;
   color: #453a50;
   font-family: "Inter", sans-serif;
-  overflow-x: hidden;
-}
-
-a {
-  color: inherit;
-  text-decoration: none;
 }

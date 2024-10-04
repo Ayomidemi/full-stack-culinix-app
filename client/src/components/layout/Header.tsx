@@ -10,7 +10,9 @@ const Header = () => {
   return (
     <header className={styles.header}>
       <div className={styles.header_container}>
-        <img src={logo} alt="logo" />
+        <div className="logo">
+          <img src={logo} alt="logo" />
+        </div>
 
         {user ? (
           <div className={styles.is_user}>
