@@ -33,7 +33,7 @@ const SignUp = () => {
           <form>
             <Input
               type="text"
-              label="Name"
+              label="Kitchen Name"
               name="name"
               onChange={handleChange}
             />

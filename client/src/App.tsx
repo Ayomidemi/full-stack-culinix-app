@@ -15,6 +15,7 @@ import FavoriteRecipes from "./pages/favorite-recipes";
 import CreateRecipe from "./pages/create-recipe";
 import UpdateAccount from "./pages/auth/update-account";
 import MyProfile from "./pages/profile";
+import RecipeById from "./pages/recipe";
 
 axios.defaults.baseURL = "http://localhost:4000";
 axios.defaults.withCredentials = true;
@@ -40,6 +41,7 @@ function App() {
               <Route path="/my-account" element={<MyProfile />} />
               <Route path="/create-recipe" element={<CreateRecipe />} />
               <Route path="/update-account" element={<UpdateAccount />} />
+              <Route path="/recipe" element={<RecipeById />} />
             </Route>
           </Routes>
         </Router>
