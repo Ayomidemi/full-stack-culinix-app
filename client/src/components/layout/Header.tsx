@@ -5,7 +5,7 @@ import styles from "../layout/styles.module.scss";
 import logo from "../../assets/logo.png";
 
 const Header = () => {
-  const user = true;
+  const user = false;
 
   return (
     <header className={styles.header}>
@@ -22,7 +22,7 @@ const Header = () => {
               <div className={styles.avatar}>
                 <FaUser color="#323232" size={15} />
               </div>
-              <a href="/profile">Johnny Doe</a>
+              <a href="/my-account">Johnny Doe</a>
             </div>
           </div>
         ) : (

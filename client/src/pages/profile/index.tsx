@@ -38,21 +38,25 @@ const MyProfile = () => {
             <div className={styles.body_conntainnt}>
               <div>
                 <img src={vector} alt="Culin6" />
-                <p>Add a new recipe</p>
+                <p onClick={() => navigate(`/create-recipe`)}>
+                  Add a new recipe
+                </p>
               </div>
             </div>
 
             <div className={styles.body_conntainnt}>
               <div>
                 <img src={vector} alt="Culin6" />
-                <p>View my recipes</p>
+                <p onClick={() => navigate(`/my-recipes`)}>View my recipes</p>
               </div>
             </div>
 
             <div className={styles.body_conntainnt}>
               <div>
                 <img src={vector} alt="Culin6" />
-                <p>View my favourite recipes</p>
+                <p onClick={() => navigate(`/my-favorites`)}>
+                  View my favourite recipes
+                </p>
               </div>
             </div>
           </div>
