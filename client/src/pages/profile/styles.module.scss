@@ -1,0 +1,126 @@
+@mixin flexx {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+}
+
+.home_conntainer {
+  @include flexx;
+}
+
+.home_wrapper {
+  display: flex;
+  flex-direction: column;
+  width: 95%;
+  min-height: 80vh;
+  position: relative;
+  padding: 20px;
+
+  .home_header {
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+
+    h2 {
+      color: #3c0174;
+    }
+  }
+
+  .home_body {
+    margin: 50px 0;
+    @include flexx;
+    flex-direction: column;
+
+    .contt_list {
+      width: 100%;
+      @include flexx;
+      flex-direction: column;
+      margin-top: 40px;
+    }
+
+    .body_conntainnt {
+      background: #fdfdfd;
+      box-shadow: -4px -4px 8px #d5adfb40, 4px 4px 8px rgba(213, 173, 251, 0.25);
+      border-radius: 10px;
+      width: 50%;
+      margin-bottom: 20px;
+      padding: 20px;
+
+      h3 {
+        font-weight: 500;
+        font-size: 20px;
+        line-height: 24px;
+        background: linear-gradient(135deg, #3c0174 0%, #e129ff 99.59%);
+        -webkit-background-clip: text;
+        -webkit-text-fill-color: transparent;
+        background-clip: text;
+        text-fill-color: transparent;
+        margin-bottom: 10px;
+      }
+
+      h6 {
+        font-size: 14px;
+        font-weight: 400;
+        margin: 5px;
+      }
+
+      button {
+        display: flex;
+        align-items: flex-end;
+        justify-content: flex-end;
+        width: 100%;
+        background: none;
+        border: none;
+        cursor: default;
+
+        span {
+          text-decoration: underline;
+          cursor: pointer;
+        }
+      }
+
+      div {
+        display: flex;
+        align-items: center;
+        gap: 30px;
+
+        p {
+          text-decoration: underline;
+        }
+      }
+    }
+  }
+
+  .home_bodyy_footerr {
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+
+    button {
+      background: none;
+      border: none;
+      color: #ff2929;
+      text-decoration: underline;
+    }
+  }
+}
+
+@media (max-width: 767px) {
+  .home_wrapper {
+    .home_body {
+      .body_conntainnt {
+        width: 70%;
+      }
+    }
+  }
+}
+
+@media (max-width: 500px) {
+  .home_wrapper {
+    .home_body {
+      .body_conntainnt {
+        width: 100%;
+      }
+    }
+  }
+}
