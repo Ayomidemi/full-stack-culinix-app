@@ -17,7 +17,8 @@
   @include flexx;
   width: 100%;
   height: 80px;
-  border-bottom: 4px solid #fbf7ff;
+  box-shadow: 0px 1px 2px rgba(121, 70, 170, 0.25);
+  border-radius: 30px 0px 0px 0px;
 
   .header_container {
     @include flexx;

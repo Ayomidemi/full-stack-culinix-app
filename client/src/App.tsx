@@ -12,6 +12,7 @@ import Login from "./pages/auth/login";
 import VerifyEmail from "./pages/auth/verify-email";
 import MyRecipes from "./pages/my-recipes";
 import FavoriteRecipes from "./pages/favorite-recipes";
+import CreateRecipe from "./pages/create-recipe";
 
 axios.defaults.baseURL = "http://localhost:4000";
 axios.defaults.withCredentials = true;
@@ -28,6 +29,7 @@ function App() {
             <Route path="/forgot-password" element={<ForgotPassword />} />
             <Route path="/reset-password" element={<ResetPassword />} />
             <Route path="/verify-email" element={<VerifyEmail />} />
+            <Route path="/create-recipe" element={<CreateRecipe />} />
 
             {/* Routes with Layout */}
             <Route path="/" element={<Layout />}>
