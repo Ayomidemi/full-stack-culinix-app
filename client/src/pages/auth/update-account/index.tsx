@@ -1,15 +1,14 @@
 import { useState } from "react";
 
 import styles from "./styles.module.scss";
-import Input from "../../components/UI/input";
-import Button from "../../components/UI/button";
+import Input from "../../../components/UI/input";
+import Button from "../../../components/UI/button";
 
-const CreateRecipe = () => {
+const UpdateAccount = () => {
   const [details, setDetails] = useState({
     name: "",
-    nick_name: "",
-    imageUrl: "",
-    desc: "",
+    email: "",
+    phoneNumber: "",
   });
 
   const handleChange = (e: { name: string; value: string }) => {
@@ -20,8 +19,8 @@ const CreateRecipe = () => {
     <div className={styles.create_recipe_wrapper}>
       <div className={styles.signup_wrapper}>
         <div className={styles.signup_body_header}>
-          <h2>Create Recipe</h2>
-          <p>Describe your recipe in your own words!</p>
+          <h2>Update Account</h2>
+          <p>Enter your details below to update your profile.</p>
         </div>
 
         <div className={styles.signup_body}>
@@ -29,31 +28,23 @@ const CreateRecipe = () => {
             <form>
               <Input
                 type="text"
-                label="Recipe Name"
+                label="Name"
                 name="name"
                 defaultValue={details?.name}
                 onChange={handleChange}
               />
               <Input
-                type="text"
-                label="Recipe Nick Name"
-                name="nick_name"
-                defaultValue={details?.nick_name}
+                type="email"
+                label="Email Address"
+                name="email"
+                defaultValue={details?.email}
                 onChange={handleChange}
               />
               <Input
-                type="text"
-                label="Image URL"
-                name="imageUrl"
-                defaultValue={details?.imageUrl}
-                onChange={handleChange}
-              />
-              <Input
-                type="text"
-                label="Description"
-                name="desc"
-                defaultValue={details?.desc}
-                textArea={true}
+                type="number"
+                label="Phone Number"
+                name="phoneNumber"
+                defaultValue={details?.phoneNumber}
                 onChange={handleChange}
               />
 
@@ -68,4 +59,4 @@ const CreateRecipe = () => {
   );
 };
 
-export default CreateRecipe;
+export default UpdateAccount;
