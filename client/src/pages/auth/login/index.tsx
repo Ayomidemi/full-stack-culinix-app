@@ -1,4 +1,7 @@
 import { useState } from "react";
+import { useNavigate } from "react-router-dom";
+import axios from "axios";
+import toast from "react-hot-toast";
 
 import styles from "./styles.module.scss";
 import logo from "../../../assets/logo.png";
@@ -6,6 +9,8 @@ import Input from "../../../components/UI/input";
 import Button from "../../../components/UI/button";
 
 const Login = () => {
+  const navigate = useNavigate();
+  const [sending, setSending] = useState(false);
   const [details, setDetails] = useState({
     email: "",
     password: "",
@@ -13,6 +18,32 @@ const Login = () => {
 
   const handleChange = (e: { name: string; value: string }) => {
     setDetails({ ...details, [e.name]: e.value });
+  };
+
+  const handleSubmit = async (e: { preventDefault: () => void }) => {
+    e.preventDefault();
+    setSending(true);
+
+    try {
+      const { data } = await axios.post("/auth/login", details);
+
+      if (data.status) {
+        setDetails({
+          email: "",
+          password: "",
+        });
+        toast.success(data.message);
+        navigate("/");
+      } else if (!data.status) {
+        toast.error(data.message);
+      }
+
+      // eslint-disable-next-line @typescript-eslint/no-explicit-any
+    } catch (error: any) {
+      toast.error(error.response.data.message);
+    }
+
+    setSending(false);
   };
 
   return (
@@ -44,7 +75,13 @@ const Login = () => {
             />
 
             <div className={styles.signup_footer}>
-              <Button type="submit" text="LOG IN" variant="primary" />
+              <Button
+                disabled={sending || !details?.email || !details?.password}
+                onClick={handleSubmit}
+                type="submit"
+                text={sending ? "Please Wait..." : "LOG IN"}
+                variant="primary"
+              />
               <p>
                 Don’t have an account? <a href="/create-account">Sign up</a>.
               </p>

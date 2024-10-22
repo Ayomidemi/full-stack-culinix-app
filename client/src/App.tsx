@@ -17,7 +17,7 @@ import UpdateAccount from "./pages/auth/update-account";
 import MyProfile from "./pages/profile";
 import RecipeById from "./pages/recipe";
 
-axios.defaults.baseURL = "http://localhost:4000";
+axios.defaults.baseURL = "http://localhost:4000/api";
 axios.defaults.withCredentials = true;
 
 function App() {
@@ -47,7 +47,7 @@ function App() {
         </Router>
       </UserContextProvider>
 
-      <Toaster position="bottom-right" />
+      <Toaster position="top-right" />
     </>
   );
 }

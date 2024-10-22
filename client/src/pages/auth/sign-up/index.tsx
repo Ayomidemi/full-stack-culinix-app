@@ -1,4 +1,7 @@
 import { useState } from "react";
+import toast from "react-hot-toast";
+import axios from "axios";
+import { useNavigate } from "react-router-dom";
 
 import styles from "./styles.module.scss";
 import logo from "../../../assets/logo.png";
@@ -6,6 +9,8 @@ import Input from "../../../components/UI/input";
 import Button from "../../../components/UI/button";
 
 const SignUp = () => {
+  const navigate = useNavigate();
+  const [sending, setSending] = useState(false);
   const [details, setDetails] = useState({
     name: "",
     email: "",
@@ -13,8 +18,42 @@ const SignUp = () => {
     password: "",
   });
 
+  const invalid =
+    !details.name ||
+    !details.email ||
+    !details.password ||
+    !details.phoneNumber;
+
   const handleChange = (e: { name: string; value: string }) => {
     setDetails({ ...details, [e.name]: e.value });
+  };
+
+  const handleSubmit = async (e: { preventDefault: () => void }) => {
+    e.preventDefault();
+    setSending(true);
+
+    try {
+      const { data } = await axios.post("/auth/register", details);
+
+      if (data.status) {
+        setDetails({
+          name: "",
+          email: "",
+          phoneNumber: "",
+          password: "",
+        });
+        toast.success(data.message);
+        navigate("/login");
+      } else if (!data.status) {
+        toast.error(data.message);
+      }
+
+      // eslint-disable-next-line @typescript-eslint/no-explicit-any
+    } catch (error: any) {
+      toast.error(error.response.data.message);
+    }
+
+    setSending(false);
   };
 
   return (
@@ -57,7 +96,13 @@ const SignUp = () => {
             />
 
             <div className={styles.signup_footer}>
-              <Button type="submit" text="SIGN UP" variant="primary" />
+              <Button
+                onClick={handleSubmit}
+                disabled={sending || invalid}
+                type="submit"
+                text={sending ? "Please Wait..." : "SIGN UP"}
+                variant="primary"
+              />
               <p>
                 Already have an account? <a href="/login">Log in</a> here.
               </p>

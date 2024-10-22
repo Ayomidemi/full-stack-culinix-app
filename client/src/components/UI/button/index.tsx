@@ -5,7 +5,8 @@ import styles from "./styles.module.scss";
 type Props = {
   text: string;
   type?: "button" | "submit" | "reset";
-  onClick?: () => void;
+  // eslint-disable-next-line @typescript-eslint/no-explicit-any
+  onClick?: any;
   variant: "primary" | "secondary" | "outline" | "transparent";
   disabled?: boolean;
   className?: string;
