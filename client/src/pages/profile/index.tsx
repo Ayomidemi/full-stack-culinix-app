@@ -1,16 +1,54 @@
+import axios from "axios";
+import toast from "react-hot-toast";
+
 import styles from "./styles.module.scss";
 
 import vector from "../../assets/list.svg";
 import { useNavigate } from "react-router-dom";
+import { useContext, useState } from "react";
+import { UserContext } from "../../components/UserContext";
 
 const MyProfile = () => {
   const navigate = useNavigate();
+  const { user, setUser } = useContext(UserContext);
+  const [loading, setLoading] = useState("");
 
-  const user = {
-    id: "123",
-    name: "Johnny Doe",
-    email: "johnny@gmail.com",
-    phoneNumber: "08012345678",
+  const handleLogout = async () => {
+    setLoading("logout");
+    try {
+      const { data } = await axios.post("/auth/logout");
+
+      if (data.status) {
+        toast.success(data.message);
+        setUser(null);
+        navigate("/login");
+      }
+
+      // eslint-disable-next-line @typescript-eslint/no-explicit-any
+    } catch (error: any) {
+      toast.error(error.response.data.message);
+    }
+
+    setLoading("");
+  };
+
+  const handleDeleteUser = async () => {
+    setLoading("logout");
+    try {
+      const { data } = await axios.delete(`/auth/user/${user?.id}`);
+
+      if (data.status) {
+        toast.success(data.message);
+        setUser(null);
+        navigate("/login");
+      }
+
+      // eslint-disable-next-line @typescript-eslint/no-explicit-any
+    } catch (error: any) {
+      toast.error(error.response.data.message);
+    }
+
+    setLoading("");
   };
 
   return (
@@ -63,8 +101,13 @@ const MyProfile = () => {
         </div>
 
         <div className={styles.home_bodyy_footerr}>
-          <button>Logout</button>
-          <button>Delete Account</button>
+          <button onClick={handleLogout} disabled={loading === "logout"}>
+            {loading === "logout" ? "Please wait..." : "Logout"}
+          </button>
+
+          <button onClick={handleDeleteUser} disabled={loading === "delete"}>
+            {loading === "delete" ? "Please wait..." : "Delete Account"}
+          </button>
         </div>
       </div>
     </div>

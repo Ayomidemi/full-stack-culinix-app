@@ -3,9 +3,11 @@ import { FaUser } from "react-icons/fa6";
 import styles from "../layout/styles.module.scss";
 
 import logo from "../../assets/logo.png";
+import { useContext } from "react";
+import { UserContext } from "../UserContext";
 
 const Header = () => {
-  const user = false;
+  const { user } = useContext(UserContext);
 
   return (
     <header className={styles.header}>
@@ -22,7 +24,7 @@ const Header = () => {
               <div className={styles.avatar}>
                 <FaUser color="#323232" size={15} />
               </div>
-              <a href="/my-account">Johnny Doe</a>
+              <a href="/my-account">{user?.name}</a>
             </div>
           </div>
         ) : (

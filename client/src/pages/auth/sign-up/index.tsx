@@ -1,4 +1,4 @@
-import { useState } from "react";
+import { useContext, useState } from "react";
 import toast from "react-hot-toast";
 import axios from "axios";
 import { useNavigate } from "react-router-dom";
@@ -7,8 +7,11 @@ import styles from "./styles.module.scss";
 import logo from "../../../assets/logo.png";
 import Input from "../../../components/UI/input";
 import Button from "../../../components/UI/button";
+import { UserContext } from "../../../components/UserContext";
 
 const SignUp = () => {
+  const { setUser } = useContext(UserContext);
+
   const navigate = useNavigate();
   const [sending, setSending] = useState(false);
   const [details, setDetails] = useState({
@@ -36,6 +39,8 @@ const SignUp = () => {
       const { data } = await axios.post("/auth/register", details);
 
       if (data.status) {
+        setUser(data.data);
+
         setDetails({
           name: "",
           email: "",

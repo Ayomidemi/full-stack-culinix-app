@@ -108,13 +108,19 @@ const getProfile = async (req, res) => {
     jwt.verify(token, process.env.JWT_SECRET, {}, async (err, user) => {
       if (err) {
         if (err.name === "TokenExpiredError") {
-          return res.status(401).json({ message: "Token expired" });
+          return res
+            .status(401)
+            .json({ status: false, message: "Token expired" });
         }
-        return res.status(403).json({ message: "Unauthorized" });
+        return res.status(403).json({ status: false, message: "Unauthorized" });
       }
 
-      const { name, email, _id } = await UserModel.findById(userData.id);
-      res.json({ name, email, _id });
+      await UserModel.findById(user.id);
+      res.json({
+        status: true,
+        message: "Profile fetched successfully!",
+        data: user,
+      });
     });
   } catch (error) {
     console.log(error);
@@ -124,9 +130,37 @@ const getProfile = async (req, res) => {
 // Logout controller
 const logout = async (req, res) => {
   try {
-    res.clearCookie("token").json({ message: "Logged out successfully!" });
+    res
+      .clearCookie("token")
+      .json({ status: true, message: "Logged out successfully!" });
   } catch (error) {
     console.log(error);
+  }
+};
+
+// Delete user controller
+const deleteUser = async (req, res) => {
+  try {
+    const { id } = req.params;
+
+    const deletedUser = await UserModel.findByIdAndDelete(id);
+    if (!deletedUser) {
+      return res.status(404).json({
+        status: false,
+        message: "User not found",
+      });
+    }
+
+    return res.status(200).json({
+      status: true,
+      message: "User account deleted successfully",
+    });
+  } catch (error) {
+    console.error(error);
+    res.status(500).json({
+      status: false,
+      message: "An error occurred while deleting the account",
+    });
   }
 };
 
@@ -135,4 +169,5 @@ module.exports = {
   login,
   logout,
   getProfile,
+  deleteUser,
 };
