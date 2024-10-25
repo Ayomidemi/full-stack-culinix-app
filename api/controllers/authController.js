@@ -66,31 +66,38 @@ const login = async (req, res) => {
 
     // check if passwords match
     const match = await comparePassword(password, user.password);
-    if (match) {
-      jwt.sign(
-        { email: user.email, id: user._id, name: user.name },
-        process.env.JWT_SECRET,
-        { expiresIn: "10h" },
-        (err, token) => {
-          res.cookie("token", token).json(user);
-          console.log(token, err, "tokeennn");
-          if (err) throw err;
-        }
-      );
-    } else if (!match) {
+    if (!match) {
       return res.status(422).json({
         status: false,
         message: "Invalid password!",
       });
     }
 
-    return res.status(201).json({
-      status: true,
-      message: "Login successful!",
-      data: user,
-    });
+    // Generate a JWT token
+    const token = jwt.sign(
+      { email: user.email, id: user._id, name: user.name },
+      process.env.JWT_SECRET,
+      { expiresIn: "10h" }
+    );
+
+    res
+      .cookie("token", token, { httpOnly: true, maxAge: 10 * 60 * 60 * 1000 }) // 10 hours
+      .json({
+        status: true,
+        message: "Login successful!",
+        data: {
+          _id: user._id,
+          name: user.name,
+          email: user.email,
+          createdAt: user.createdAt,
+        },
+        // token,
+      });
   } catch (error) {
     console.log(error);
+    res
+      .status(500)
+      .json({ status: false, message: "An error occurred during login" });
   }
 };
 
