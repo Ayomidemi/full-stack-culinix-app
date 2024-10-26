@@ -13,7 +13,12 @@ const userSchema = new Schema(
       type: String,
       required: true,
     },
-    phoneNumber: Number,
+    phoneNumber: String,
+    verified: {
+      type: Boolean,
+      default: false,
+    },
+    emailToken: String,
   },
   { timestamps: true }
 );

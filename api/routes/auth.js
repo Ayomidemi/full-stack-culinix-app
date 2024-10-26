@@ -7,10 +7,14 @@ const {
   logout,
   getProfile,
   deleteUser,
+  verifyEmail,
+  resendVerificationEmail,
 } = require("../controllers/authController");
 
 // Define routes
 router.post("/register", signup);
+router.post("/verify-email", verifyEmail);
+router.post("/resend-verification-email", resendVerificationEmail);
 router.post("/login", login);
 router.post("/logout", logout);
 router.get("/profile", getProfile);

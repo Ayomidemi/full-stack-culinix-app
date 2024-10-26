@@ -6,5 +6,6 @@ export interface IUser {
   password: string;
   createdAt: string;
   updatedAt: string;
+  verified: boolean;
   __v: number;
 }

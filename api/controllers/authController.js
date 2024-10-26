@@ -1,6 +1,9 @@
+const jwt = require("jsonwebtoken");
+const crypto = require("crypto");
+
 const UserModel = require("../models/UserModel");
 const { hashPassword, comparePassword } = require("../config/helpers/auth");
-const jwt = require("jsonwebtoken");
+const { sendVerificationMail } = require("../utils/email-verification");
 
 // Signup controller
 const signup = async (req, res) => {
@@ -33,20 +36,123 @@ const signup = async (req, res) => {
     }
 
     const hashedPassword = await hashPassword(password);
+    const emailToken = crypto.randomBytes(64).toString("hex");
+
     const user = await UserModel.create({
       name,
       email,
       phoneNumber,
+      emailToken,
       password: hashedPassword,
     });
+
+    sendVerificationMail(user);
 
     return res.status(201).json({
       status: true,
       message: "Account created successfully!",
-      data: user,
+      data: {
+        _id: user._id,
+        name: user.name,
+        email: user.email,
+        verified: user.verified,
+        createdAt: user.createdAt,
+      },
     });
   } catch (error) {
-    console.log(error);
+    res.status(500).json({
+      status: false,
+      message: "An error occurred while deleting the account",
+    });
+  }
+};
+
+// Verify email controller
+const verifyEmail = async (req, res) => {
+  try {
+    const { emailToken } = req.body;
+
+    if (!emailToken) {
+      return res.status(400).json({
+        status: false,
+        message: "Invalid token!",
+      });
+    }
+
+    const user = await UserModel.findOne({ emailToken });
+
+    if (!user) {
+      return res.json({
+        status: false,
+        message: "Email verification failed. Invalid token!",
+      });
+    } else {
+      user.verified = true;
+      user.emailToken = null;
+
+      await user.save();
+
+      const token = jwt.sign(
+        { email: user.email, id: user._id, name: user.name },
+        process.env.JWT_SECRET,
+        { expiresIn: "10h" }
+      );
+
+      return res
+        .cookie("token", token, { httpOnly: true, maxAge: 10 * 60 * 60 * 1000 })
+        .json({
+          status: true,
+          message: "Email verified successfully!",
+          data: {
+            _id: user._id,
+            name: user.name,
+            email: user.email,
+            verified: user.verified,
+            createdAt: user.createdAt,
+          },
+          // token,
+        });
+    }
+  } catch (error) {
+    res.status(500).json({
+      status: false,
+      message: "An error occurred while verifying the email",
+    });
+  }
+};
+
+// resend verification email controller
+const resendVerificationEmail = async (req, res) => {
+  try {
+    const { email } = req.body;
+
+    if (!email) {
+      return res.status(400).json({
+        status: false,
+        message: "Invalid email!",
+      });
+    }
+
+    const user = await UserModel.findOne({ email });
+
+    if (!user) {
+      return res.json({
+        status: false,
+        message: "Email verification failed. Invalid email!",
+      });
+    } else {
+      sendVerificationMail(user);
+
+      return res.json({
+        status: true,
+        message: "Email verification sent successfully!",
+      });
+    }
+  } catch (error) {
+    res.status(500).json({
+      status: false,
+      message: "An error occurred while resending the email",
+    });
   }
 };
 
@@ -89,6 +195,7 @@ const login = async (req, res) => {
           _id: user._id,
           name: user.name,
           email: user.email,
+          verified: user.verified,
           createdAt: user.createdAt,
         },
         // token,
@@ -101,11 +208,12 @@ const login = async (req, res) => {
   }
 };
 
-// get profile controller
+// Get profile controller
 const getProfile = async (req, res) => {
   try {
     const { token } = req.cookies;
-    jwt.verify(token, process.env.JWT_SECRET, {}, async (err, user) => {
+
+    jwt.verify(token, process.env.JWT_SECRET, {}, async (err, decoded) => {
       if (err) {
         if (err.name === "TokenExpiredError") {
           return res
@@ -115,15 +223,34 @@ const getProfile = async (req, res) => {
         return res.status(403).json({ status: false, message: "Unauthorized" });
       }
 
-      await UserModel.findById(user.id);
+      const user = await UserModel.findById(decoded.id).lean();
+      if (!user) {
+        return res
+          .status(404)
+          .json({ status: false, message: "User not found" });
+      }
+
       res.json({
         status: true,
         message: "Profile fetched successfully!",
-        data: user,
+        data: {
+          id: user._id,
+          name: user.name,
+          email: user.email,
+          verified: user.verified,
+          phoneNumber: user.phoneNumber,
+          createdAt: user.createdAt,
+          updatedAt: user.updatedAt,
+          __v: user.__v,
+        },
       });
     });
   } catch (error) {
-    console.log(error);
+    console.error(error);
+    res.status(500).json({
+      status: false,
+      message: "An error occurred while fetching the profile",
+    });
   }
 };
 
@@ -151,7 +278,7 @@ const deleteUser = async (req, res) => {
       });
     }
 
-    return res.status(200).json({
+    return res.clearCookie("token").json({
       status: true,
       message: "User account deleted successfully",
     });
@@ -170,4 +297,6 @@ module.exports = {
   logout,
   getProfile,
   deleteUser,
+  verifyEmail,
+  resendVerificationEmail,
 };

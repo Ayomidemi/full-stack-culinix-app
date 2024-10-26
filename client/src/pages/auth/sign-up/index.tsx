@@ -48,7 +48,7 @@ const SignUp = () => {
           password: "",
         });
         toast.success(data.message);
-        navigate("/login");
+        navigate("/verify-email");
       } else if (!data.status) {
         toast.error(data.message);
       }
