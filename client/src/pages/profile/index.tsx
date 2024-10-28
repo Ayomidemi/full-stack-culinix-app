@@ -63,7 +63,7 @@ const MyProfile = () => {
             <h3>{user?.name}</h3>
 
             <h6>{user?.email}</h6>
-            <h6>{user?.phoneNumber}</h6>
+            <h6>+{user?.phoneNumber}</h6>
 
             <button>
               <span onClick={() => navigate(`/update-account?id=${user?.id}`)}>

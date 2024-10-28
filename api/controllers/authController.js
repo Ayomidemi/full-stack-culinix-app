@@ -156,6 +156,56 @@ const resendVerificationEmail = async (req, res) => {
   }
 };
 
+// update user controller
+const updateUser = async (req, res) => {
+  try {
+    const deets = req.body;
+    const { token } = req.cookies;
+
+    jwt.verify(token, process.env.JWT_SECRET, {}, async (err, decoded) => {
+      if (err) {
+        if (err.name === "TokenExpiredError") {
+          return res
+            .status(401)
+            .json({ status: false, message: "Token expired" });
+        }
+        return res.status(403).json({ status: false, message: "Unauthorized" });
+      }
+
+      const user = await UserModel.findById(decoded.id);
+      if (!user) {
+        return res
+          .status(404)
+          .json({ status: false, message: "User not found" });
+      } else {
+        user.set(deets);
+        user.save();
+      }
+
+      res.json({
+        status: true,
+        message: "User updated successfully!",
+        data: {
+          id: user._id,
+          name: user.name,
+          email: user.email,
+          verified: user.verified,
+          phoneNumber: user.phoneNumber,
+          createdAt: user.createdAt,
+          updatedAt: user.updatedAt,
+          __v: user.__v,
+        },
+      });
+    });
+  } catch (error) {
+    console.log(error);
+    res.status(500).json({
+      status: false,
+      message: "An error occurred while updating the user",
+    });
+  }
+};
+
 // Login controller
 const login = async (req, res) => {
   try {
@@ -299,4 +349,5 @@ module.exports = {
   deleteUser,
   verifyEmail,
   resendVerificationEmail,
+  updateUser,
 };
