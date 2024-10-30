@@ -17,11 +17,10 @@ import UpdateAccount from "./pages/auth/update-account";
 import MyProfile from "./pages/profile";
 import RecipeById from "./pages/recipe";
 
-axios.defaults.baseURL = "http://localhost:4000/api";
+axios.defaults.baseURL = import.meta.env.VITE_API_BASE_URL;
 axios.defaults.withCredentials = true;
 
 function App() {
-  
   return (
     <>
       <UserContextProvider>

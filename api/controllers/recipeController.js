@@ -7,17 +7,29 @@ const createRecipe = async (req, res) => {
     const { token } = req.cookies;
     const deets = req.body;
 
-    jwt.verify(token, jwtSecret, {}, async (err, user) => {
+    jwt.verify(token, process.env.JWT_SECRET, {}, async (err, user) => {
       if (err) throw err;
+
       const recipeDoc = await RecipeModel.create({
-        owner: user._id,
+        owner: user.id,
         ...deets,
-        kitchen: user.name, // populate the kitchen field with the user's name
+        kitchen: {
+          name: user.name,
+          email: user.email,
+        },
       });
-      res.json(recipeDoc);
+
+      res.json({
+        status: true,
+        message: "Recipe created successfully",
+        recipeDoc,
+      });
     });
   } catch (error) {
-    console.log(error);
+    res.status(500).json({
+      status: false,
+      message: "An error occurred while creating recipe",
+    });
   }
 };
 
@@ -28,26 +40,38 @@ const updateRecipe = async (req, res) => {
     const { id } = req.params;
     const deets = req.body;
 
-    jwt.verify(token, jwtSecret, {}, async (err, user) => {
+    jwt.verify(token, process.env.JWT_SECRET, {}, async (err, user) => {
       if (err) throw err;
       const recipeDoc = await RecipeModel.findOneAndUpdate(
-        { _id: id, owner: user._id },
+        { id: id, owner: user.id },
         deets,
         { new: true }
       );
       res.json(recipeDoc);
     });
   } catch (error) {
-    console.log(error);
+    res.status(500).json({
+      status: false,
+      message: "An error occurred while updating this recipe",
+    });
   }
 };
 
 // Get all recipes
 const getAllRecipes = async (req, res) => {
   try {
-    res.json(await RecipeModel.find());
+    const recipes = await RecipeModel.find();
+
+    res.json({
+      status: true,
+      message: "Recipes fetched successfully",
+      data: recipes,
+    });
   } catch (error) {
-    console.log(error);
+    res.status(500).json({
+      status: false,
+      message: "An error occurred while fetching recipes",
+    });
   }
 };
 
@@ -55,23 +79,58 @@ const getAllRecipes = async (req, res) => {
 const getRecipeById = async (req, res) => {
   try {
     const { id } = req.params;
-    res.json(await RecipeModel.findById(id));
+    const recipe = await RecipeModel.findById(id);
+
+    res.json({
+      status: true,
+      message: "Recipe fetched successfully",
+      recipe,
+    });
   } catch (error) {
-    console.log(error);
+    res.status(500).json({
+      status: false,
+      message: "An error occurred while fetching this recipe",
+    });
   }
 };
 
 // get recipes by user id
-const getRecipesByUserId = async (req, res) => {
+const getUserRecipes = async (req, res) => {
   try {
     const { token } = req.cookies;
+    const { page = 1, limit = 10, search = "" } = req.query;
 
-    jwt.verify(token, jwtSecret, {}, async (err, user) => {
+    jwt.verify(token, process.env.JWT_SECRET, {}, async (err, user) => {
       if (err) throw err;
-      res.json(await RecipeModel.find({ owner: user._id }));
+
+      const searchQuery = {
+        owner: user.id,
+        $or: [
+          { name: { $regex: search, $options: "i" } },
+          { category: { $elemMatch: { $regex: search, $options: "i" } } },
+          { ingredients: { $elemMatch: { $regex: search, $options: "i" } } },
+        ],
+      };
+
+      const totalRecipes = await RecipeModel.countDocuments(searchQuery);
+
+      const recipes = await RecipeModel.find(searchQuery)
+        .skip((page - 1) * limit)
+        .limit(Number(limit));
+
+      res.json({
+        status: true,
+        message: "Recipes fetched successfully",
+        total: Math.ceil(totalRecipes / limit),
+        data: recipes,
+      });
     });
   } catch (error) {
     console.log(error);
+    res.status(500).json({
+      status: false,
+      message: "An error occurred while fetching recipes",
+    });
   }
 };
 
@@ -80,5 +139,5 @@ module.exports = {
   updateRecipe,
   getAllRecipes,
   getRecipeById,
-  getRecipesByUserId,
+  getUserRecipes,
 };

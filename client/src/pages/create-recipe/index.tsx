@@ -1,22 +1,37 @@
 import { useState } from "react";
 import { ImCancelCircle } from "react-icons/im";
+import axios from "axios";
+import { useNavigate } from "react-router-dom";
+import toast from "react-hot-toast";
 
 import styles from "./styles.module.scss";
 import Input from "../../components/UI/input";
 import Button from "../../components/UI/button";
 import Select from "../../components/UI/select-field";
+import ImagesInput from "../../components/UI/Images/ImagesInput";
 
 const CreateRecipe = () => {
+  const navigate = useNavigate();
+
   const [ingredient, setIngredient] = useState("");
+  const [sending, setSending] = useState(false);
   const [details, setDetails] = useState({
-    name: "", //
+    name: "",
     imageUrl: "",
-    desc: "", //
-    ingredients: [] as string[], //
-    instructions: "", //
-    cookTime: "", //
-    category: [], //
+    desc: "",
+    ingredients: [] as string[],
+    instructions: "",
+    cookTime: "",
+    category: [],
   });
+
+  const invalid =
+    !details.name ||
+    !details.imageUrl ||
+    !details.instructions ||
+    !details.desc ||
+    !details.cookTime ||
+    !details.category;
 
   const handleChange = (e: { name: string; value: string }) => {
     setDetails({ ...details, [e.name]: e.value });
@@ -32,6 +47,37 @@ const CreateRecipe = () => {
       ...details,
       [name]: value,
     });
+  };
+
+  const handleSubmit = async (e: { preventDefault: () => void }) => {
+    e.preventDefault();
+    setSending(true);
+
+    try {
+      const { data } = await axios.post("/recipe/create-recipe", details);
+
+      if (data.status) {
+        setDetails({
+          name: "",
+          imageUrl: "",
+          desc: "",
+          ingredients: [] as string[],
+          instructions: "",
+          cookTime: "",
+          category: [],
+        });
+        toast.success(data.message);
+        navigate("/my-recipes");
+      } else if (!data.status) {
+        toast.error(data.message);
+      }
+
+      // eslint-disable-next-line @typescript-eslint/no-explicit-any
+    } catch (error: any) {
+      toast.error(error.response.data.message);
+    }
+
+    setSending(false);
   };
 
   const cookTimesInHours = [
@@ -91,7 +137,7 @@ const CreateRecipe = () => {
 
         <div className={styles.signup_body}>
           <div className={styles.signup_body_cont}>
-            <form>
+            <div className={styles.formmm}>
               <Input
                 type="text"
                 label="Recipe Name"
@@ -100,13 +146,13 @@ const CreateRecipe = () => {
                 onChange={handleChange}
               />
 
-              <Input
-                type="text"
-                label="Image URL"
-                name="imageUrl"
-                defaultValue={details?.imageUrl}
-                onChange={handleChange}
-              />
+              <div className={styles.hide_image}>
+                <ImagesInput
+                  setRawImage={(val) =>
+                    setDetails({ ...details, imageUrl: val })
+                  }
+                />
+              </div>
 
               <div className={styles.add_ingredient}>
                 <Input
@@ -204,9 +250,15 @@ const CreateRecipe = () => {
               />
 
               <div className={styles.signup_footer}>
-                <Button type="submit" text="CREATE RECIPE" variant="primary" />
+                <Button
+                  onClick={handleSubmit}
+                  type="submit"
+                  disabled={sending || invalid}
+                  text={sending ? "Please Wait..." : "CREATE RECIPE"}
+                  variant="primary"
+                />
               </div>
-            </form>
+            </div>
           </div>
         </div>
       </div>

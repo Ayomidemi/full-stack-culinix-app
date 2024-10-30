@@ -17,9 +17,6 @@
   padding: 20px 50px;
 
   .signup_body_header {
-    margin: 20px 0;
-    gap: 10px;
-
     h2 {
       color: #3c0174;
     }
@@ -38,10 +35,10 @@
     padding: 30px;
 
     .signup_body_cont {
-      width: 45%;
+      width: 50%;
     }
 
-    form {
+    .formmm {
       display: flex;
       flex-direction: column;
       margin: 20px;
@@ -132,7 +129,7 @@
         width: 100%;
       }
 
-      form {
+      .formmm {
         margin: 0px;
       }
     }

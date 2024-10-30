@@ -5,14 +5,16 @@ import styles from "../layout/styles.module.scss";
 import logo from "../../assets/logo.png";
 import { useContext } from "react";
 import { UserContext } from "../UserContext";
+import { useNavigate } from "react-router-dom";
 
 const Header = () => {
+  const navigate = useNavigate();
   const { user } = useContext(UserContext);
 
   return (
     <header className={styles.header}>
       <div className={styles.header_container}>
-        <div className="logo">
+        <div className="logo" onClick={() => navigate("/")}>
           <img src={logo} alt="logo" />
         </div>
 

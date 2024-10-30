@@ -1,0 +1,113 @@
+@mixin flexx {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+}
+
+.image_open_image {
+  font-size: 12px;
+  margin: 5px 0 0 5px;
+  
+  span {
+    font-weight: 600;
+    cursor: pointer;
+  }
+}
+
+.image_input_wrapper {
+  margin-top: 10px;
+  @include flexx;
+  flex-direction: column;
+  gap: 10px;
+  padding: 10px;
+  border: 1px dashed #bebebe;
+  border-radius: 5px;
+
+  .image_input_wrapper_cont {
+    p {
+      color: #3c0174;
+      font-size: 12px;
+      text-align: center;
+    }
+
+    .image_input_btn {
+      @include flexx;
+      justify-content: space-between;
+
+      input {
+        margin: 10px 0;
+      }
+
+      button {
+        background-color: #3c0174;
+        color: white;
+        padding: 7px 15px;
+        border: none;
+        border-radius: 5px;
+        cursor: pointer;
+      }
+    }
+  }
+
+  .image_prev {
+    p {
+      color: #3c0174;
+      font-size: 12px;
+      text-align: center;
+    }
+
+    .image_preview {
+      @include flexx;
+      position: relative;
+
+      img {
+        width: 100%;
+        height: 150px;
+        object-fit: cover;
+        border-radius: 5px;
+      }
+
+      svg {
+        position: absolute;
+        bottom: 5px;
+        right: 5px;
+        background: white;
+        border-radius: 50%;
+        padding: 5px;
+        cursor: pointer;
+      }
+    }
+  }
+}
+
+@media (max-width: 767px) {
+  .signup_wrapper {
+    .signup_body {
+      .signup_body_cont {
+        width: 70%;
+      }
+    }
+  }
+}
+
+@media (max-width: 600px) {
+  .create_recipe_wrapper {
+    min-height: 75vh;
+  }
+
+  .signup_wrapper {
+    padding: 20px;
+
+    .signup_body {
+      padding: 10px;
+
+      .signup_body_cont {
+        width: 100%;
+      }
+
+      form {
+        margin: 0px;
+      }
+    }
+  }
+}

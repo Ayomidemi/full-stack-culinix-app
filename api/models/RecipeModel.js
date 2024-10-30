@@ -4,11 +4,18 @@ const { Schema } = mongoose;
 const recipeSchema = new Schema(
   {
     owner: { type: mongoose.Schema.Types.ObjectId, ref: "User" },
+    kitchen: {
+      name: String,
+      email: String,
+      phoneNumber: String,
+    },
     name: String,
-    nick_name: String,
     imageUrl: String,
     desc: String,
-    ingredients: String,
+    ingredients: [String],
+    instructions: String,
+    cookTime: String,
+    category: [String],
     likes: { type: Number, default: 0 },
     dislikes: { type: Number, default: 0 },
     views: { type: Number, default: 0 },
