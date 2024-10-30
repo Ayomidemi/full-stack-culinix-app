@@ -1,68 +1,115 @@
 import { IoEyeOutline } from "react-icons/io5";
-import { BiLike, BiDislike } from "react-icons/bi";
+import { BiLike, BiDislike, BiSolidLike, BiSolidDislike } from "react-icons/bi";
 import { FiEdit3 } from "react-icons/fi";
 import { RiDeleteBin7Line } from "react-icons/ri";
 import { FaUser } from "react-icons/fa6";
 import { MdFavorite, MdFavoriteBorder } from "react-icons/md";
+import { useNavigate, useSearchParams } from "react-router-dom";
+import { useContext, useEffect, useState } from "react";
+import { format } from "date-fns";
 
 import styles from "./styles.module.scss";
-import { useSearchParams } from "react-router-dom";
-import { useState } from "react";
 import Input from "../../components/UI/input";
 import Button from "../../components/UI/button";
+import { IRecipe } from "../../interface";
+import axios from "axios";
+import toast from "react-hot-toast";
+import Loader from "../../components/UI/loader";
+import Modal from "../../components/UI/modal";
+import { UserContext } from "../../components/UserContext";
 
 const RecipeById = () => {
+  const { user } = useContext(UserContext);
   const [viewReview, setViewReviews] = useState(false);
   // eslint-disable-next-line @typescript-eslint/no-unused-vars
   const [review, setReview] = useState("");
+  const [recipe, setRecipe] = useState({} as IRecipe);
+  const [loading, setLoading] = useState(false);
+  const [modal, setModal] = useState(false);
+  const [liked, setLiked] = useState(false);
+  const [disliked, setDisliked] = useState(false);
+
+  const navigate = useNavigate();
 
   const [searchParams] = useSearchParams();
   const mine = searchParams.get("my-recipe") || false;
+  const idd = searchParams.get("id") || "";
+
+  const fetchData = async () => {
+    setLoading(true);
+
+    try {
+      const { data } = await axios.get(`/recipe/recipe/${idd}`);
+
+      if (data.status) {
+        setRecipe(data.data);
+        setLiked(data.data.liked);
+        setDisliked(data.data.disliked);
+      } else if (!data.status) {
+        toast.error(data.message);
+      }
+
+      // eslint-disable-next-line @typescript-eslint/no-explicit-any
+    } catch (error: any) {
+      toast.error(error.response.data.message);
+    }
+
+    setLoading(false);
+  };
+
+  const handleLikeRecipe = async (like: boolean) => {
+    setLoading(true);
+
+    try {
+      const { data } = like
+        ? await axios.put(`/recipe/${String(idd)}/like`, { userId: user?.id })
+        : await axios.put(`/recipe/${String(idd)}/dislike`, {
+            userId: user?.id,
+          });
+
+      if (data.status) {
+        toast.success(data.message);
+
+        setRecipe(data.data);
+        setLiked(like && !liked);
+        setDisliked(!like && !disliked);
+      } else if (!data.status) {
+        toast.error(data.message);
+      }
+
+      // eslint-disable-next-line @typescript-eslint/no-explicit-any
+    } catch (error: any) {
+      toast.error(error.response.data.message);
+    }
+
+    setLoading(false);
+  };
+
+  useEffect(() => {
+    fetchData();
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, []);
 
   const handleSubmitReview = () => {};
 
-  const recipe = {
-    name: "Ogbono recipe",
-    kitchen_Name: "Ades kitchen",
-    imageUrl:
-      "https://images.pexels.com/photos/27947532/pexels-photo-27947532/free-photo-of-woman-with-food-on-a-picnic.jpeg?auto=compress&cs=tinysrgb&w=800&lazy=load",
-    desc: "This recipe is the best in the whole world soteyyyy i nearly cry when i chop am and i am out of content so It is a long established fact that a reader will be distracted by the readable content of a page when looking at its layout. The point of using Lorem Ipsum is that it has a more-or-less normal distribution of letters, as opposed to using 'Content here, content here', making it look like readable English.",
-    views: 7,
-    save: false,
-    likes: 2,
-    dislikes: 3,
-    createdAt: "13-12-2022",
-    reviews: [
-      {
-        name: "Ade",
-        review: "too tasty",
-      },
-      {
-        name: "Johnny",
-        review: "saltier tasty",
-      },
-      {
-        name: "Gordon",
-        review: "This food is soooo good I want much moreeee",
-      },
-    ],
-  };
-
   return (
     <div className={styles.recipe_wrapper}>
+      {loading && <Loader />}
+
       <div className={styles.card_container}>
         <div className={styles.card_content}>
           <div>
-            <h3>{recipe?.name}</h3> {!mine && <p>({recipe?.kitchen_Name})</p>}
+            <h3>{recipe?.name || ""}</h3>{" "}
+            {!mine && <p>({recipe?.kitchen?.name || ""})</p>}
           </div>
 
           <div className={styles.edit_btns}>
-            <button>
+            <button onClick={() => navigate(`/save-recipe?id=${recipe?._id}`)}>
               <FiEdit3 />
               <span>Edit Recipe</span>
             </button>
 
-            <button>
+            <button onClick={() => setModal(!modal)}>
               <RiDeleteBin7Line />
               <span>Delete Recipe</span>
             </button>
@@ -71,18 +118,39 @@ const RecipeById = () => {
 
         <div className={styles.card_image}>
           <img
-            src="https://images.pexels.com/photos/27947532/pexels-photo-27947532/free-photo-of-woman-with-food-on-a-picnic.jpeg?auto=compress&cs=tinysrgb&w=800&lazy=load"
+            src={
+              recipe?.imageUrl ||
+              "https://images.pexels.com/photos/2611817/pexels-photo-2611817.jpeg?auto=compress&cs=tinysrgb&w=800"
+            }
             alt="recipe"
           />
         </div>
 
-        <p className={styles.desc}>{recipe?.desc}</p>
+        <div className={styles.instrctns}>
+          <h2>Ingredients:</h2>
+
+          {recipe?.ingredients?.map((ingredient, i) => (
+            <p className={styles.desc} key={i}>
+              {ingredient || ""}
+            </p>
+          ))}
+        </div>
+
+        <div className={styles.instrctns}>
+          <h2>Instructions:</h2>
+          <p className={styles.desc}>{recipe?.instructions || ""}</p>
+        </div>
+
+        <div className={styles.instrctns}>
+          <h2>Description:</h2>
+          <p className={styles.desc}>{recipe?.desc || ""}</p>
+        </div>
       </div>
 
       <div className={styles.card_footer}>
         <div className={styles.footer_right}>
           <div className={styles.footer_idv}>
-            <IoEyeOutline /> <p>{recipe?.views} views</p>
+            <IoEyeOutline /> <p>{recipe?.views || 0} views</p>
           </div>
 
           <div className={styles.footer_idv}>
@@ -102,16 +170,30 @@ const RecipeById = () => {
             </div>
 
             <div className={styles.footer_idv}>
-              <BiLike /> <p>{recipe?.likes}</p>
+              {liked ? (
+                <BiSolidLike onClick={() => handleLikeRecipe(true)} />
+              ) : (
+                <BiLike onClick={() => handleLikeRecipe(true)} />
+              )}
+              <p>{recipe?.likes || 0}</p>
             </div>
 
             <div className={styles.footer_idv}>
-              <BiDislike /> <p>{recipe?.dislikes}</p>
+              {disliked ? (
+                <BiSolidDislike onClick={() => handleLikeRecipe(false)} />
+              ) : (
+                <BiDislike onClick={() => handleLikeRecipe(false)} />
+              )}
+              <p>{recipe?.dislikes || 0}</p>
             </div>
           </>
 
           <div className={styles.footer_idv}>
-            <p>{recipe?.createdAt}</p>
+            <p>
+              {recipe?.createdAt
+                ? format(new Date(recipe?.createdAt), "MMM d, yyy")
+                : ""}
+            </p>
           </div>
         </div>
       </div>
@@ -137,13 +219,13 @@ const RecipeById = () => {
 
           <div className={styles.recipe_reviewss}>
             {recipe?.reviews?.map((review, i) => (
-              <div  className={styles.recipe_reviewss_list} key={i}>
+              <div className={styles.recipe_reviewss_list} key={i}>
                 <div className={styles.avatar}>
                   <FaUser color="#323232" size={15} />
                 </div>
 
                 <div className={styles.review_namess}>
-                  <h6>{review?.name}</h6>
+                  <h6>{review?.user?.name}</h6>
                   <p>{review?.review}</p>
                   <button>Delete review</button>
                 </div>
@@ -152,6 +234,8 @@ const RecipeById = () => {
           </div>
         </div>
       )}
+
+      <Modal onClose={() => setModal(false)} isOpen={modal} />
     </div>
   );
 };

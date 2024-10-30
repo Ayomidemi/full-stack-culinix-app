@@ -79,10 +79,20 @@
       }
     }
 
-    .desc {
-      font-size: 16px;
-      line-height: 25px;
-      letter-spacing: 0.04em;
+    .instrctns {
+      margin: 10px 0;
+      h2 {
+        font-size: 18px;
+        font-weight: 600;
+        margin-bottom: 5px;
+      }
+
+      .desc {
+        font-size: 16px;
+        line-height: 25px;
+        letter-spacing: 0.04em;
+        white-space: pre-wrap;
+      }
     }
   }
 
@@ -160,7 +170,6 @@
         }
 
         .review_namess {
-
           h6 {
             font-size: 16px;
             font-weight: 400;
@@ -177,7 +186,7 @@
             background: none;
             border: none;
             font-size: 14px;
-            color: #F91A1D;
+            color: #f91a1d;
             text-decoration: underline;
             margin: 0;
             padding: 0;

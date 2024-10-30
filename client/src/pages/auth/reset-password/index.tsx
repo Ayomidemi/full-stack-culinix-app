@@ -38,7 +38,7 @@ const ResetPassword = () => {
         <LuMoveLeft color="#3C0174" size={30} onClick={handleGoBack} />
       </div>
       <div className={`logo ${styles.signup_logo}`}>
-        <img src={logo} alt="logo" />
+        <img src={logo} alt="logo" onClick={() => navigate("/")} />
       </div>
 
       <div className={styles.signup_body}>

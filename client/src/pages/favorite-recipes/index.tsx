@@ -78,7 +78,7 @@ const FavoriteRecipes = () => {
               You have no favorite recipes at this time! You can create a recipe{" "}
               <span
                 style={{ cursor: "pointer" }}
-                onClick={() => navigate("/create-recipe")}
+                onClick={() => navigate("/save-recipe")}
               >
                 <u>here.</u>
               </span>

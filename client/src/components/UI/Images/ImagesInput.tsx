@@ -1,4 +1,4 @@
-import React, { useState } from "react";
+import React, { useEffect, useState } from "react";
 import axios from "axios";
 import { RiDeleteBin6Line } from "react-icons/ri";
 
@@ -11,9 +11,10 @@ const base_url = import.meta.env.VITE_CLOUDINARY_BASEURL;
 
 interface Props {
   setRawImage: (url: string) => void;
+  imageUrl: string;
 }
 
-const ImagesInput: React.FC<Props> = ({ setRawImage }) => {
+const ImagesInput: React.FC<Props> = ({ setRawImage, imageUrl }) => {
   const [image, setImage] = useState<File | null>(null);
   const [imageLink, setImageLink] = useState<string>("");
   const [imagePreview, setImagePreview] = useState<string>("");
@@ -70,6 +71,13 @@ const ImagesInput: React.FC<Props> = ({ setRawImage }) => {
     setImagePreview("");
     setRawImage("");
   };
+
+  useEffect(() => {
+    if (imageUrl) {
+      setImageLink(imageUrl);
+      setImagePreview(imageUrl);
+    }
+  }, [imageUrl]);
 
   return (
     <div>

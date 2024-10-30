@@ -76,7 +76,7 @@ const MyProfile = () => {
             <div className={styles.body_conntainnt}>
               <div>
                 <img src={vector} alt="Culin6" />
-                <p onClick={() => navigate(`/create-recipe`)}>
+                <p onClick={() => navigate(`/save-recipe`)}>
                   Add a new recipe
                 </p>
               </div>

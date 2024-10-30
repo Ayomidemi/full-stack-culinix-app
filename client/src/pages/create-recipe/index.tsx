@@ -1,7 +1,7 @@
-import { useState } from "react";
+import { useEffect, useState } from "react";
 import { ImCancelCircle } from "react-icons/im";
 import axios from "axios";
-import { useNavigate } from "react-router-dom";
+import { useNavigate, useSearchParams } from "react-router-dom";
 import toast from "react-hot-toast";
 
 import styles from "./styles.module.scss";
@@ -9,11 +9,17 @@ import Input from "../../components/UI/input";
 import Button from "../../components/UI/button";
 import Select from "../../components/UI/select-field";
 import ImagesInput from "../../components/UI/Images/ImagesInput";
+import { IRecipe } from "../../interface";
+import Loader from "../../components/UI/loader";
 
 const CreateRecipe = () => {
   const navigate = useNavigate();
+  const [searchParams] = useSearchParams();
+  const idd = searchParams.get("id") || "";
 
+  const [recipe, setRecipe] = useState({} as IRecipe);
   const [ingredient, setIngredient] = useState("");
+  const [loading, setLoading] = useState(false);
   const [sending, setSending] = useState(false);
   const [details, setDetails] = useState({
     name: "",
@@ -24,6 +30,18 @@ const CreateRecipe = () => {
     cookTime: "",
     category: [],
   });
+
+  useEffect(() => {
+    setDetails({
+      name: recipe?.name || "",
+      imageUrl: recipe?.imageUrl || "",
+      desc: recipe?.desc || "",
+      ingredients: recipe?.ingredients || ([] as string[]),
+      instructions: recipe?.instructions || "",
+      cookTime: recipe?.cookTime || "",
+      category: recipe?.category || [],
+    });
+  }, [recipe]);
 
   const invalid =
     !details.name ||
@@ -49,12 +67,34 @@ const CreateRecipe = () => {
     });
   };
 
+  const fetchData = async () => {
+    setLoading(true);
+
+    try {
+      const { data } = await axios.get(`/recipe/recipe/${idd}`);
+
+      if (data.status) {
+        setRecipe(data.data);
+      } else if (!data.status) {
+        toast.error(data.message);
+      }
+
+      // eslint-disable-next-line @typescript-eslint/no-explicit-any
+    } catch (error: any) {
+      toast.error(error.response.data.message);
+    }
+
+    setLoading(false);
+  };
+
   const handleSubmit = async (e: { preventDefault: () => void }) => {
     e.preventDefault();
     setSending(true);
 
     try {
-      const { data } = await axios.post("/recipe/create-recipe", details);
+      const { data } = idd
+        ? await axios.put(`/recipe/update-recipe/${idd}`, details)
+        : await axios.post(`/recipe/create-recipe`, details);
 
       if (data.status) {
         setDetails({
@@ -67,7 +107,7 @@ const CreateRecipe = () => {
           category: [],
         });
         toast.success(data.message);
-        navigate("/my-recipes");
+        navigate(`/recipe?my-recipe=true&id=${data.data._id}`);
       } else if (!data.status) {
         toast.error(data.message);
       }
@@ -79,6 +119,13 @@ const CreateRecipe = () => {
 
     setSending(false);
   };
+
+  useEffect(() => {
+    if (idd) {
+      fetchData();
+    }
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, [idd]);
 
   const cookTimesInHours = [
     "Half an hour",
@@ -129,6 +176,8 @@ const CreateRecipe = () => {
 
   return (
     <div className={styles.create_recipe_wrapper}>
+      {loading && <Loader />}
+
       <div className={styles.signup_wrapper}>
         <div className={styles.signup_body_header}>
           <h2>Create Recipe</h2>
@@ -151,6 +200,7 @@ const CreateRecipe = () => {
                   setRawImage={(val) =>
                     setDetails({ ...details, imageUrl: val })
                   }
+                  imageUrl={details?.imageUrl}
                 />
               </div>
 
@@ -254,7 +304,11 @@ const CreateRecipe = () => {
                   onClick={handleSubmit}
                   type="submit"
                   disabled={sending || invalid}
-                  text={sending ? "Please Wait..." : "CREATE RECIPE"}
+                  text={
+                    sending
+                      ? "Please Wait..."
+                      : `${idd ? "UPDATE" : "CREATE"} RECIPE`
+                  }
                   variant="primary"
                 />
               </div>

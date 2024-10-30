@@ -54,7 +54,7 @@ const Login = () => {
   return (
     <div className={styles.signup_wrapper}>
       <div className={`logo ${styles.signup_logo}`}>
-        <img src={logo} alt="logo" />
+        <img src={logo} alt="logo" onClick={() => navigate("/")} />
       </div>
 
       <div className={styles.signup_body}>

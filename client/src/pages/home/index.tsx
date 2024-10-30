@@ -108,7 +108,7 @@ const Home = () => {
               There are no recipes at this time! You can create a recipe{" "}
               <span
                 style={{ cursor: "pointer" }}
-                onClick={() => navigate("/create-recipe")}
+                onClick={() => navigate("/save-recipe")}
               >
                 <u>here.</u>
               </span>

@@ -2,6 +2,10 @@ import { IoCloseCircleOutline } from "react-icons/io5";
 
 import styles from "./styles.module.scss";
 import Button from "../button";
+import { useState } from "react";
+import { useNavigate, useSearchParams } from "react-router-dom";
+import axios from "axios";
+import toast from "react-hot-toast";
 
 interface ModalProps {
   isOpen: boolean;
@@ -9,6 +13,35 @@ interface ModalProps {
 }
 
 const Modal = ({ isOpen, onClose }: ModalProps) => {
+  const [sending, setSending] = useState(false);
+
+  const navigate = useNavigate();
+  const [searchParams] = useSearchParams();
+  const idd = searchParams.get("id") || "";
+
+  const handleSubmit = async (e: { preventDefault: () => void }) => {
+    e.preventDefault();
+    setSending(true);
+
+    try {
+      const { data } = await axios.delete(`/recipe/delete-recipe/${idd}`);
+
+      if (data.status) {
+        onClose();
+        toast.success(data.message);
+        navigate(`/my-recipes`);
+      } else if (!data.status) {
+        toast.error(data.message);
+      }
+
+      // eslint-disable-next-line @typescript-eslint/no-explicit-any
+    } catch (error: any) {
+      toast.error(error.response.data.message);
+    }
+
+    setSending(false);
+  };
+
   return (
     <>
       {isOpen && (
@@ -35,8 +68,8 @@ const Modal = ({ isOpen, onClose }: ModalProps) => {
                   variant="transparent"
                 />
                 <Button
-                  onClick={() => onClose()}
-                  text="Delete"
+                  onClick={handleSubmit}
+                  text={sending ? "Deleting..." : "Delete"}
                   variant="primary"
                 />
               </div>

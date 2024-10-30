@@ -26,7 +26,11 @@ const RecipeCard = ({ mine = false, favorite = false, recipe }: Props) => {
               "https://images.pexels.com/photos/2611817/pexels-photo-2611817.jpeg?auto=compress&cs=tinysrgb&w=800"
             }
             alt="recipe"
-            onClick={() => navigate(`/recipe?id=${recipe._id}`)}
+            onClick={() =>
+              navigate(
+                `/recipe?id=${recipe._id}${mine ? "&my-recipe=true" : ""}`
+              )
+            }
           />
         </div>
 

@@ -1,5 +1,6 @@
 import axios from "axios";
 import toast from "react-hot-toast";
+import { useNavigate } from "react-router-dom";
 
 import styles from "./styles.module.scss";
 import logo from "../../../assets/logo.png";
@@ -10,6 +11,7 @@ import { UserContext } from "../../../components/UserContext";
 const VerifyEmail = () => {
   const { user } = useContext(UserContext);
   const [sending, setSending] = useState(false);
+  const navigate = useNavigate();
 
   const handleResendEmail = async () => {
     setSending(true);
@@ -35,7 +37,7 @@ const VerifyEmail = () => {
   return (
     <div className={styles.signup_wrapper}>
       <div className={`logo ${styles.signup_logo}`}>
-        <img src={logo} alt="logo" />
+        <img src={logo} alt="logo" onClick={() => navigate("/")} />
       </div>
 
       <div className={styles.signup_logo}>
