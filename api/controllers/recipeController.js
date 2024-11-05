@@ -42,9 +42,16 @@ const updateRecipe = async (req, res) => {
 
     jwt.verify(token, process.env.JWT_SECRET, {}, async (err, user) => {
       if (err) throw err;
+
       const recipeDoc = await RecipeModel.findOneAndUpdate(
         { _id: id, owner: user.id },
-        deets,
+        {
+          ...deets,
+          kitchen: {
+            name: user.name,
+            email: user.email,
+          },
+        },
         { new: true }
       );
 
@@ -65,12 +72,27 @@ const updateRecipe = async (req, res) => {
 // Get all recipes
 const getAllRecipes = async (req, res) => {
   try {
-    const recipes = await RecipeModel.find();
+    const { page = 1, limit = 10, search = "" } = req.query;
+
+    const searchQuery = {
+      $or: [
+        { name: { $regex: search, $options: "i" } },
+        { category: { $elemMatch: { $regex: search, $options: "i" } } },
+        { ingredients: { $elemMatch: { $regex: search, $options: "i" } } },
+      ],
+    };
+
+    const totalRecipes = await RecipeModel.countDocuments(searchQuery);
+
+    const recipes = await RecipeModel.find(searchQuery)
+      .skip((page - 1) * limit)
+      .limit(Number(limit));
 
     res.json({
       status: true,
       message: "Recipes fetched successfully",
       data: recipes,
+      total: Math.ceil(totalRecipes / limit),
     });
   } catch (error) {
     res.status(500).json({
@@ -87,7 +109,7 @@ const getRecipeById = async (req, res) => {
     const token = req.cookies.token || req.headers.authorization?.split(" ")[1];
     let userId = null;
 
-    // If a token is provided, verify it and extract the user ID
+    // this is to check for token and get user id
     if (token) {
       try {
         const decoded = jwt.verify(token, process.env.JWT_SECRET);
@@ -97,11 +119,11 @@ const getRecipeById = async (req, res) => {
       }
     }
 
-    // Fetch recipe and increment views
+    // fetch recipe and increase views by 1
     const recipe = await RecipeModel.findByIdAndUpdate(
       id,
       { $inc: { views: 1 } },
-      { new: true }
+      { new: true } // returns updated document
     );
 
     if (!recipe) {

@@ -103,17 +103,21 @@ const RecipeById = () => {
             {!mine && <p>({recipe?.kitchen?.name || ""})</p>}
           </div>
 
-          <div className={styles.edit_btns}>
-            <button onClick={() => navigate(`/save-recipe?id=${recipe?._id}`)}>
-              <FiEdit3 />
-              <span>Edit Recipe</span>
-            </button>
+          {user?.id && (
+            <div className={styles.edit_btns}>
+              <button
+                onClick={() => navigate(`/save-recipe?id=${recipe?._id}`)}
+              >
+                <FiEdit3 />
+                <span>Edit Recipe</span>
+              </button>
 
-            <button onClick={() => setModal(!modal)}>
-              <RiDeleteBin7Line />
-              <span>Delete Recipe</span>
-            </button>
-          </div>
+              <button onClick={() => setModal(!modal)}>
+                <RiDeleteBin7Line />
+                <span>Delete Recipe</span>
+              </button>
+            </div>
+          )}
         </div>
 
         <div className={styles.card_image}>
@@ -153,40 +157,44 @@ const RecipeById = () => {
             <IoEyeOutline /> <p>{recipe?.views || 0} views</p>
           </div>
 
-          <div className={styles.footer_idv}>
-            <p
-              style={{ textDecoration: "underline", cursor: "pointer" }}
-              onClick={() => setViewReviews(!viewReview)}
-            >
-              View reviews
-            </p>
-          </div>
+          {user?.id && (
+            <div className={styles.footer_idv}>
+              <p
+                style={{ textDecoration: "underline", cursor: "pointer" }}
+                onClick={() => setViewReviews(!viewReview)}
+              >
+                View reviews
+              </p>
+            </div>
+          )}
         </div>
 
         <div className={styles.footer_right}>
-          <>
-            <div className={styles.footer_idv}>
-              {recipe?.save ? <MdFavorite /> : <MdFavoriteBorder />}
-            </div>
+          {user?.id && (
+            <>
+              <div className={styles.footer_idv}>
+                {recipe?.save ? <MdFavorite /> : <MdFavoriteBorder />}
+              </div>
 
-            <div className={styles.footer_idv}>
-              {liked ? (
-                <BiSolidLike onClick={() => handleLikeRecipe(true)} />
-              ) : (
-                <BiLike onClick={() => handleLikeRecipe(true)} />
-              )}
-              <p>{recipe?.likes || 0}</p>
-            </div>
+              <div className={styles.footer_idv}>
+                {liked ? (
+                  <BiSolidLike onClick={() => handleLikeRecipe(true)} />
+                ) : (
+                  <BiLike onClick={() => handleLikeRecipe(true)} />
+                )}
+                <p>{recipe?.likes || 0}</p>
+              </div>
 
-            <div className={styles.footer_idv}>
-              {disliked ? (
-                <BiSolidDislike onClick={() => handleLikeRecipe(false)} />
-              ) : (
-                <BiDislike onClick={() => handleLikeRecipe(false)} />
-              )}
-              <p>{recipe?.dislikes || 0}</p>
-            </div>
-          </>
+              <div className={styles.footer_idv}>
+                {disliked ? (
+                  <BiSolidDislike onClick={() => handleLikeRecipe(false)} />
+                ) : (
+                  <BiDislike onClick={() => handleLikeRecipe(false)} />
+                )}
+                <p>{recipe?.dislikes || 0}</p>
+              </div>
+            </>
+          )}
 
           <div className={styles.footer_idv}>
             <p>

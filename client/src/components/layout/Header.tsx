@@ -36,7 +36,7 @@ const Header = () => {
             </div>
 
             <a href="/login">Login</a>
-            <a href="/signup">Sign Up</a>
+            <a href="/create-account">Sign Up</a>
           </div>
         )}
       </div>
