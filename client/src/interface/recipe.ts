@@ -28,12 +28,9 @@ export interface IRecipe {
 
 export interface IReview {
   _id: string;
+  userId: string;
   review: string;
-  rating: number;
-  user: {
-    name: string;
-    email: string;
-  };
+  reviewer: string;
   createdAt: string;
   updatedAt: string;
   __v: number;

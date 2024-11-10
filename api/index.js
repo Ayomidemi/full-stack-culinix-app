@@ -23,6 +23,7 @@ app.use(cors(corsOptions));
 
 app.use("/api/auth", require("./routes/auth"));
 app.use("/api/recipe", require("./routes/recipe"));
+app.use("/api/review", require("./routes/review"));
 
 app.listen(port, () => {
   console.log(`App is currently running on port https://localhost:${port}`);

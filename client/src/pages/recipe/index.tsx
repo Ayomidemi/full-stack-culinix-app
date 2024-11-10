@@ -11,7 +11,7 @@ import { format } from "date-fns";
 import styles from "./styles.module.scss";
 import Input from "../../components/UI/input";
 import Button from "../../components/UI/button";
-import { IRecipe } from "../../interface";
+import { IRecipe, IReview } from "../../interface";
 import axios from "axios";
 import toast from "react-hot-toast";
 import Loader from "../../components/UI/loader";
@@ -21,9 +21,9 @@ import { UserContext } from "../../components/UserContext";
 const RecipeById = () => {
   const { user } = useContext(UserContext);
   const [viewReview, setViewReviews] = useState(false);
-  // eslint-disable-next-line @typescript-eslint/no-unused-vars
   const [review, setReview] = useState("");
   const [recipe, setRecipe] = useState({} as IRecipe);
+  const [reviews, setReviews] = useState([] as IReview[]);
   const [loading, setLoading] = useState(false);
   const [modal, setModal] = useState(false);
   const [liked, setLiked] = useState(false);
@@ -45,7 +45,27 @@ const RecipeById = () => {
         setRecipe(data.data);
         setLiked(data.data.liked);
         setDisliked(data.data.disliked);
-      } else if (!data.status) {
+      } else {
+        toast.error(data.message);
+      }
+
+      // eslint-disable-next-line @typescript-eslint/no-explicit-any
+    } catch (error: any) {
+      toast.error(error.response.data.message);
+    }
+
+    setLoading(false);
+  };
+
+  const fetchReviews = async () => {
+    setLoading(true);
+
+    try {
+      const { data } = await axios.get(`/review/${idd}/reviews`);
+
+      if (data.status) {
+        setReviews(data.data);
+      } else {
         toast.error(data.message);
       }
 
@@ -85,12 +105,56 @@ const RecipeById = () => {
     setLoading(false);
   };
 
+  const handleSubmitReview = async () => {
+    setLoading(true);
+
+    try {
+      const { data } = await axios.post(`/review/${idd}/create-review`, {
+        review,
+      });
+
+      if (data.status) {
+        toast.success(data.message);
+        setReview("");
+        fetchReviews();
+      } else {
+        toast.error(data.message);
+      }
+
+      // eslint-disable-next-line @typescript-eslint/no-explicit-any
+    } catch (error: any) {
+      toast.error(error.response.data.message);
+    }
+
+    setLoading(false);
+  };
+
+  const handleDeleteReview = async () => {
+    setLoading(true);
+
+    try {
+      const { data } = await axios.delete(`/review/${idd}/delete-review`);
+
+      if (data.status) {
+        toast.success(data.message);
+        fetchReviews();
+      } else {
+        toast.error(data.message);
+      }
+
+      // eslint-disable-next-line @typescript-eslint/no-explicit-any
+    } catch (error: any) {
+      toast.error(error.response.data.message);
+    }
+
+    setLoading(false);
+  };
+
   useEffect(() => {
     fetchData();
+    fetchReviews();
     // eslint-disable-next-line react-hooks/exhaustive-deps
   }, []);
-
-  const handleSubmitReview = () => {};
 
   return (
     <div className={styles.recipe_wrapper}>
@@ -163,7 +227,7 @@ const RecipeById = () => {
                 style={{ textDecoration: "underline", cursor: "pointer" }}
                 onClick={() => setViewReviews(!viewReview)}
               >
-                View reviews
+                {viewReview ? "Hide" : "View"} reviews
               </p>
             </div>
           )}
@@ -215,6 +279,7 @@ const RecipeById = () => {
               type="text"
               label="Add a review"
               name="review"
+              defaultValue={review}
               onChange={(val) => setReview(val.value)}
             />
 
@@ -226,16 +291,19 @@ const RecipeById = () => {
           </div>
 
           <div className={styles.recipe_reviewss}>
-            {recipe?.reviews?.map((review, i) => (
+            {reviews?.map((review, i) => (
               <div className={styles.recipe_reviewss_list} key={i}>
                 <div className={styles.avatar}>
                   <FaUser color="#323232" size={15} />
                 </div>
 
                 <div className={styles.review_namess}>
-                  <h6>{review?.user?.name}</h6>
+                  <h6>{review?.reviewer}</h6>
                   <p>{review?.review}</p>
-                  <button>Delete review</button>
+
+                  {review?.userId === user?.id && (
+                    <button onClick={handleDeleteReview}>Delete review</button>
+                  )}
                 </div>
               </div>
             ))}
