@@ -116,7 +116,11 @@ const Home = () => {
           ) : (
             <>
               {recipes?.data?.map((recipe) => (
-                <RecipeCard key={recipe._id} recipe={recipe} />
+                <RecipeCard
+                  key={recipe._id}
+                  recipe={recipe}
+                  fetchData={fetchData}
+                />
               ))}
             </>
           )}

@@ -85,7 +85,12 @@ const MyRecipes = () => {
           ) : (
             <>
               {recipes?.data?.map((recipe) => (
-                <RecipeCard key={recipe._id} recipe={recipe} mine={true} />
+                <RecipeCard
+                  key={recipe._id}
+                  recipe={recipe}
+                  mine={true}
+                  fetchData={fetchData}
+                />
               ))}
             </>
           )}

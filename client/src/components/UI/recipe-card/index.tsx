@@ -1,20 +1,53 @@
+import { useContext } from "react";
+import axios from "axios";
 import { IoEyeOutline } from "react-icons/io5";
 import { BiLike, BiDislike } from "react-icons/bi";
 import { MdFavorite } from "react-icons/md";
 import { format } from "date-fns";
 import { useNavigate } from "react-router-dom";
+import toast from "react-hot-toast";
 
 import styles from "./styles.module.scss";
-import { IRecipe } from "../../../interface";
+import { IStreamlinedFavorites } from "../../../interface";
+import { UserContext } from "../../UserContext";
 
 type Props = {
   mine?: boolean;
   favorite?: boolean;
-  recipe: IRecipe;
+  recipe: IStreamlinedFavorites;
+  fetchData: () => Promise<void>;
 };
 
-const RecipeCard = ({ mine = false, favorite = false, recipe }: Props) => {
+const RecipeCard = ({
+  mine = false,
+  favorite = false,
+  recipe,
+  fetchData,
+}: Props) => {
   const navigate = useNavigate();
+  const { user } = useContext(UserContext);
+
+  const handleAddRemoveFavorite = async () => {
+    try {
+      const { data } = await axios.put(
+        `/recipe/${String(recipe?._id)}/favorite`,
+        {
+          userId: user?.id,
+        }
+      );
+
+      if (data.status) {
+        toast.success(data.message);
+        fetchData();
+      } else if (!data.status) {
+        toast.error(data.message);
+      }
+
+      // eslint-disable-next-line @typescript-eslint/no-explicit-any
+    } catch (error: any) {
+      toast.error(error.response.data.message);
+    }
+  };
 
   return (
     <div className={styles.card_wrap}>
@@ -54,7 +87,7 @@ const RecipeCard = ({ mine = false, favorite = false, recipe }: Props) => {
         <div className={styles.footer_right}>
           {favorite ? (
             <div className={styles.footer_idv}>
-              <MdFavorite /> <p>Unsave</p>
+              <MdFavorite onClick={handleAddRemoveFavorite} /> <p>Unsave</p>
             </div>
           ) : (
             <>
@@ -69,7 +102,11 @@ const RecipeCard = ({ mine = false, favorite = false, recipe }: Props) => {
           )}
 
           <div className={styles.footer_idv}>
-            <p>{format(new Date(recipe?.createdAt), "MMM d, yyy")}</p>
+            {recipe?.createdAt ? (
+              <p>{format(new Date(recipe?.createdAt), "MMM d, yyy")}</p>
+            ) : (
+              "- -"
+            )}
           </div>
         </div>
       </div>

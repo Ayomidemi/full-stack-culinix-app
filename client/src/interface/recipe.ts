@@ -20,10 +20,27 @@ export interface IRecipe {
     email: string;
     name: string;
   };
-  save: boolean;
+  isFavorite: boolean;
   reviews: IReview[];
   cookTime: string;
   category: [];
+  recipe: IStreamlinedFavorites;
+}
+
+export interface IStreamlinedFavorites {
+  _id: string;
+  imageUrl: string;
+  desc: string;
+  name: string;
+  createdAt: string;
+  views: number;
+  dislikes: number;
+  likes: number;
+  kitchen: {
+    email: string;
+    name: string;
+  };
+  isFavorite: boolean;
 }
 
 export interface IReview {

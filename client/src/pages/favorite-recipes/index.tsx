@@ -31,7 +31,7 @@ const FavoriteRecipes = () => {
     setLoading(true);
 
     try {
-      const { data } = await axios.get("/recipe/my-recipes", {
+      const { data } = await axios.get("/recipe/favorites", {
         params: {
           page,
           limit,
@@ -88,9 +88,10 @@ const FavoriteRecipes = () => {
               {recipes?.data?.map((recipe) => (
                 <RecipeCard
                   key={recipe._id}
-                  recipe={recipe}
+                  recipe={recipe?.recipe}
                   mine={true}
                   favorite={true}
+                  fetchData={fetchData}
                 />
               ))}
             </>

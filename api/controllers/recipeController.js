@@ -1,5 +1,6 @@
 const jwt = require("jsonwebtoken");
 const RecipeModel = require("../models/RecipeModel");
+const FavoritesModel = require("../models/FavoritesModel");
 
 // Create a new recipe
 const createRecipe = async (req, res) => {
@@ -109,7 +110,6 @@ const getRecipeById = async (req, res) => {
     const token = req.cookies.token || req.headers.authorization?.split(" ")[1];
     let userId = null;
 
-    // this is to check for token and get user id
     if (token) {
       try {
         const decoded = jwt.verify(token, process.env.JWT_SECRET);
@@ -133,6 +133,17 @@ const getRecipeById = async (req, res) => {
       });
     }
 
+    // favorites
+    let isFavorite = false;
+
+    if (userId) {
+      const favorite = await FavoritesModel.findOne({
+        userId,
+        recipeId: id,
+      });
+      isFavorite = !!favorite;
+    }
+
     // Check for like/dislike status if user ID is available
     const liked = userId ? recipe.likedBy.includes(userId) : false;
     const disliked = userId ? recipe.dislikedBy.includes(userId) : false;
@@ -140,7 +151,7 @@ const getRecipeById = async (req, res) => {
     res.json({
       status: true,
       message: "Recipe fetched successfully",
-      data: { ...recipe.toObject(), liked, disliked },
+      data: { ...recipe.toObject(), liked, disliked, isFavorite },
     });
   } catch (error) {
     console.log(error);
@@ -305,6 +316,91 @@ const dislikeRecipeByUsers = async (req, res) => {
   }
 };
 
+// favorite recipe by users
+const addRemoveFavorite = async (req, res) => {
+  try {
+    const { token } = req.cookies;
+    const { recipeId } = req.params;
+
+    jwt.verify(token, process.env.JWT_SECRET, {}, async (err, user) => {
+      if (err) throw err;
+
+      // check for if favorite exists
+      const existingFavorite = await FavoritesModel.findOne({
+        userId: user.id,
+        recipeId,
+      });
+
+      if (existingFavorite) {
+        await existingFavorite.deleteOne();
+        return res.json({
+          status: true,
+          message: "Recipe removed from favorites",
+        });
+      } else {
+        await FavoritesModel.create({
+          userId: user.id,
+          recipeId,
+        });
+
+        return res.json({
+          status: true,
+          message: "Recipe added to favorites",
+        });
+      }
+    });
+  } catch (error) {
+    res.status(500).json({
+      status: false,
+      message: "An error occurred while updating favorites",
+    });
+  }
+};
+
+// get all favorites by user
+const getFavorites = async (req, res) => {
+  try {
+    const { token } = req.cookies;
+
+    jwt.verify(token, process.env.JWT_SECRET, {}, async (err, user) => {
+      if (err) throw err;
+
+      const favorites = await FavoritesModel.find({ userId: user.id }).populate(
+        "recipeId"
+      );
+
+      const streamlinedFavorites = favorites.map((favorite) => ({
+        _id: favorite._id,
+        recipe: {
+          kitchen: {
+            name: favorite.recipeId.kitchen.name,
+            email: favorite.recipeId.kitchen.email,
+          },
+          name: favorite.recipeId.name,
+          desc: favorite.recipeId.desc,
+          _id: favorite.recipeId._id,
+          imageUrl: favorite.recipeId.imageUrl,
+          likes: favorite.recipeId.likes,
+          dislikes: favorite.recipeId.dislikes,
+          views: favorite.recipeId.views,
+          createdAt: favorite.recipeId.createdAt,
+          isFavorite: true,
+        },
+      }));
+
+      res.json({
+        status: true,
+        data: streamlinedFavorites,
+      });
+    });
+  } catch (error) {
+    res.status(500).json({
+      status: false,
+      message: "An error occurred while fetching favorites",
+    });
+  }
+};
+
 module.exports = {
   createRecipe,
   updateRecipe,
@@ -314,4 +410,6 @@ module.exports = {
   deleteRecipe,
   likeRecipeByUsers,
   dislikeRecipeByUsers,
+  addRemoveFavorite,
+  getFavorites,
 };

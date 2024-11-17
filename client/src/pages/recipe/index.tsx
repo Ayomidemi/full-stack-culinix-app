@@ -105,6 +105,29 @@ const RecipeById = () => {
     setLoading(false);
   };
 
+  const handleAddRemoveFavorite = async () => {
+    setLoading(true);
+
+    try {
+      const { data } = await axios.put(`/recipe/${String(idd)}/favorite`, {
+        userId: user?.id,
+      });
+
+      if (data.status) {
+        toast.success(data.message);
+        fetchData();
+      } else if (!data.status) {
+        toast.error(data.message);
+      }
+
+      // eslint-disable-next-line @typescript-eslint/no-explicit-any
+    } catch (error: any) {
+      toast.error(error.response.data.message);
+    }
+
+    setLoading(false);
+  };
+
   const handleSubmitReview = async () => {
     setLoading(true);
 
@@ -192,13 +215,7 @@ const RecipeById = () => {
 
         <div className={styles.card_image_contt}>
           <div className={styles.card_image}>
-            <img
-              src={
-                recipe?.imageUrl ||
-                "https://images.pexels.com/photos/2611817/pexels-photo-2611817.jpeg?auto=compress&cs=tinysrgb&w=800"
-              }
-              alt="recipe"
-            />
+            <img src={recipe?.imageUrl} alt="recipe" />
           </div>
 
           <div className={styles.instrctns}>
@@ -244,8 +261,11 @@ const RecipeById = () => {
         <div className={styles.footer_right}>
           {user?.id && (
             <>
-              <div className={styles.footer_idv}>
-                {recipe?.save ? <MdFavorite /> : <MdFavoriteBorder />}
+              <div
+                className={styles.footer_idv}
+                onClick={handleAddRemoveFavorite}
+              >
+                {recipe?.isFavorite ? <MdFavorite /> : <MdFavoriteBorder />}
               </div>
 
               <div className={styles.footer_idv}>
