@@ -151,16 +151,16 @@ const RecipeById = () => {
   };
 
   useEffect(() => {
-    fetchData();
+    if (idd) fetchData();
     // eslint-disable-next-line react-hooks/exhaustive-deps
-  }, []);
+  }, [idd]);
 
   useEffect(() => {
-    if (user?.id) {
+    if (user?.id && idd) {
       fetchReviews();
     }
     // eslint-disable-next-line react-hooks/exhaustive-deps
-  }, [user]);
+  }, [user, idd]);
 
   return (
     <div className={styles.recipe_wrapper}>
@@ -299,22 +299,33 @@ const RecipeById = () => {
           </div>
 
           <div className={styles.recipe_reviewss}>
-            {reviews?.map((review, i) => (
-              <div className={styles.recipe_reviewss_list} key={i}>
-                <div className={styles.avatar}>
-                  <FaUser color="#323232" size={15} />
-                </div>
+            {reviews?.length > 0 ? (
+              reviews?.map((review, i) => (
+                <div className={styles.recipe_reviewss_list} key={i}>
+                  <div className={styles.avatar}>
+                    <FaUser color="#323232" size={15} />
+                  </div>
 
-                <div className={styles.review_namess}>
-                  <h6>{review?.reviewer}</h6>
-                  <p>{review?.review}</p>
+                  <div className={styles.review_namess}>
+                    <h6>{review?.reviewer}</h6>
+                    <p>{review?.review}</p>
+                    <span>
+                      {review?.createdAt
+                        ? format(new Date(review?.createdAt), "MMM d, yyy")
+                        : ""}
+                    </span>
 
-                  {review?.userId === user?.id && (
-                    <button onClick={handleDeleteReview}>Delete review</button>
-                  )}
+                    {review?.userId === user?.id && (
+                      <button onClick={handleDeleteReview}>
+                        Delete review
+                      </button>
+                    )}
+                  </div>
                 </div>
-              </div>
-            ))}
+              ))
+            ) : (
+              <p>No reviews yet</p>
+            )}
           </div>
         </div>
       )}

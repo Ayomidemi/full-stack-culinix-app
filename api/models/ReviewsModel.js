@@ -3,9 +3,17 @@ const { Schema } = mongoose;
 
 const reviewsSchema = new Schema(
   {
-    userId: { type: mongoose.Schema.Types.ObjectId, ref: "User" },
+    userId: {
+      type: mongoose.Schema.Types.ObjectId,
+      ref: "User",
+      required: true,
+    },
+    recipeId: {
+      type: mongoose.Schema.Types.ObjectId,
+      ref: "Recipe",
+      required: true,
+    },
     reviewer: String,
-    recipeId: { type: mongoose.Schema.Types.ObjectId, ref: "Recipe" },
     review: { type: String, required: true },
   },
   { timestamps: true }

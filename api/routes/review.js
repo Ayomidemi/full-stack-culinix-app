@@ -8,8 +8,8 @@ const {
 } = require("../controllers/reviewController");
 
 // Define routes
-router.post("/:id/create-review", createReview);
-router.get("/:id/reviews", getReviews);
-router.delete("/:id/delete-review", deleteReview);
+router.post("/:recipeId/create-review", createReview);
+router.get("/:recipeId/reviews", getReviews);
+router.delete("/:recipeId/delete-review", deleteReview);
 
 module.exports = router;
