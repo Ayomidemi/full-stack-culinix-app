@@ -198,7 +198,6 @@ const updateUser = async (req, res) => {
       });
     });
   } catch (error) {
-    console.log(error);
     res.status(500).json({
       status: false,
       message: "An error occurred while updating the user",
@@ -251,7 +250,6 @@ const login = async (req, res) => {
         // token,
       });
   } catch (error) {
-    console.log(error);
     res
       .status(500)
       .json({ status: false, message: "An error occurred during login" });
@@ -311,7 +309,9 @@ const logout = async (req, res) => {
       .clearCookie("token")
       .json({ status: true, message: "Logged out successfully!" });
   } catch (error) {
-    console.log(error);
+    res
+      .status(500)
+      .json({ status: false, message: "An error occurred during login" });
   }
 };
 

@@ -215,7 +215,6 @@ const getRecipeById = async (req, res) => {
       },
     });
   } catch (error) {
-    console.log(error);
     res.status(500).json({
       status: false,
       message: "An error occurred while fetching this recipe",
@@ -280,7 +279,6 @@ const getUserRecipes = async (req, res) => {
       });
     });
   } catch (error) {
-    console.log(error);
     res.status(500).json({
       status: false,
       message: "An error occurred while fetching recipes",
