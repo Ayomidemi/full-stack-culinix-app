@@ -27,6 +27,7 @@ interface InputProps {
   id?: string;
   placeInputRef?: React.RefObject<HTMLInputElement>;
   textArea?: boolean;
+  onKeyDown?: (e: any) => void;
 }
 
 const Input: React.FC<InputProps> = ({
@@ -48,6 +49,7 @@ const Input: React.FC<InputProps> = ({
   id,
   placeInputRef,
   textArea = false,
+  onKeyDown,
 }) => {
   const [isOpen, setIsOpen] = useState(false);
   const inputRef = useRef<HTMLInputElement | any>(null);
@@ -200,6 +202,7 @@ const Input: React.FC<InputProps> = ({
             rows={6}
             style={{ height: "100%", paddingTop: "20px" }}
             onPaste={handlePaste}
+            onKeyDown={onKeyDown}
           />
         ) : (
           <input
@@ -219,6 +222,7 @@ const Input: React.FC<InputProps> = ({
             id={id}
             disabled={disabled}
             onPaste={handlePaste}
+            onKeyDown={onKeyDown}
           />
         )}
         {preffix && isOpen && <span className={styles.preffix}>{preffix}</span>}

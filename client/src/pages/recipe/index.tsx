@@ -194,7 +194,7 @@ const RecipeById = () => {
             {!mine && <p>({recipe?.kitchen?.name || ""})</p>}
           </div>
 
-          {user?.id && (
+          {user?.id === recipe?.owner && (
             <div className={styles.edit_btns}>
               <button
                 onClick={() => navigate(`/save-recipe?id=${recipe?._id}`)}

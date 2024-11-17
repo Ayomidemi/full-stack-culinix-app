@@ -46,10 +46,11 @@
     }
 
     .add_ingredient {
-      display: flex;
-      align-items: center;
-      width: 100%;
-      gap: 10px;
+      
+      p {
+        font-size: 12px;
+        margin: 5px 0 0 5px;
+      }
 
       div {
         width: 100%;

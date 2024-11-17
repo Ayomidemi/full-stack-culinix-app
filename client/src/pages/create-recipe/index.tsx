@@ -12,6 +12,10 @@ import ImagesInput from "../../components/UI/Images/ImagesInput";
 import { IRecipe } from "../../interface";
 import Loader from "../../components/UI/loader";
 
+const cloud_name = import.meta.env.VITE_CLOUDINARY_CLOUD_NAME;
+const upload_preset = import.meta.env.VITE_CLOUDINARY_UPLOAD_PRESET;
+const base_url = import.meta.env.VITE_CLOUDINARY_BASEURL;
+
 const CreateRecipe = () => {
   const navigate = useNavigate();
   const [searchParams] = useSearchParams();
@@ -21,6 +25,9 @@ const CreateRecipe = () => {
   const [ingredient, setIngredient] = useState("");
   const [loading, setLoading] = useState(false);
   const [sending, setSending] = useState(false);
+  const [image, setImage] = useState<File | null>(null);
+  const [imageLink, setImageLink] = useState<string>("");
+  const [imagePreview, setImagePreview] = useState<string>("");
   const [details, setDetails] = useState({
     name: "",
     imageUrl: "",
@@ -45,7 +52,6 @@ const CreateRecipe = () => {
 
   const invalid =
     !details.name ||
-    !details.imageUrl ||
     !details.instructions ||
     !details.desc ||
     !details.cookTime ||
@@ -65,6 +71,29 @@ const CreateRecipe = () => {
       ...details,
       [name]: value,
     });
+  };
+
+  const handleImageUpload = async () => {
+    if (!image) return;
+
+    const formData = new FormData();
+    formData.append("file", image);
+    formData.append("upload_preset", upload_preset);
+    formData.append("cloud_name", cloud_name);
+
+    try {
+      const response = await axios.post(base_url, formData, {
+        headers: {
+          "Content-Type": "multipart/form-data",
+        },
+        withCredentials: false,
+      });
+      const uploadedUrl = response.data.secure_url;
+      setImageLink(uploadedUrl);
+      return uploadedUrl;
+    } catch (error) {
+      console.error("Image upload failed:", error);
+    }
   };
 
   const fetchData = async () => {
@@ -92,6 +121,12 @@ const CreateRecipe = () => {
     setSending(true);
 
     try {
+      const uploadedUrl = await handleImageUpload();
+
+    if (uploadedUrl) {
+      details.imageUrl = uploadedUrl;
+    }
+
       const { data } = idd
         ? await axios.put(`/recipe/update-recipe/${idd}`, details)
         : await axios.post(`/recipe/create-recipe`, details);
@@ -200,7 +235,12 @@ const CreateRecipe = () => {
                   setRawImage={(val) =>
                     setDetails({ ...details, imageUrl: val })
                   }
+                  setImage={setImage}
                   imageUrl={details?.imageUrl}
+                  setImageLink={setImageLink}
+                  imageLink={imageLink}
+                  setImagePreview={setImagePreview}
+                  imagePreview={imagePreview}
                 />
               </div>
 
@@ -211,10 +251,29 @@ const CreateRecipe = () => {
                   name="ingredient"
                   defaultValue={ingredient}
                   onChange={(val) => setIngredient(val?.value)}
+                  onKeyDown={(e: {
+                    key: string;
+                    preventDefault: () => void;
+                  }) => {
+                    if (e.key === "Enter") {
+                      e.preventDefault();
+                      if (ingredient.trim()) {
+                        setDetails((prevDetails) => ({
+                          ...prevDetails,
+                          ingredients: [
+                            ...prevDetails.ingredients,
+                            ingredient.trim(),
+                          ],
+                        }));
+                        setIngredient("");
+                      }
+                    }
+                  }}
                 />
+                <p>Press enter to add a new ingredient</p>
 
-                <Button
-                  text="Add Ingredient"
+                {/* <Button
+                  text="Add"
                   variant="secondary"
                   onClick={(e: { preventDefault: () => void }) => {
                     e.preventDefault();
@@ -226,7 +285,7 @@ const CreateRecipe = () => {
                     setIngredient("");
                   }}
                   disabled={!ingredient}
-                />
+                /> */}
               </div>
 
               {details?.ingredients?.length > 0 && (

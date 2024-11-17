@@ -1,29 +1,34 @@
 import React, { useEffect, useState } from "react";
-import axios from "axios";
-import { RiDeleteBin6Line } from "react-icons/ri";
+import { RiDeleteBin6Line, RiCloseLine } from "react-icons/ri";
 
 import styles from "./styles.module.scss";
 import Input from "../input";
 
-const cloud_name = import.meta.env.VITE_CLOUDINARY_CLOUD_NAME;
-const upload_preset = import.meta.env.VITE_CLOUDINARY_UPLOAD_PRESET;
-const base_url = import.meta.env.VITE_CLOUDINARY_BASEURL;
-
 interface Props {
   setRawImage: (url: string) => void;
   imageUrl: string;
+  setImage: React.Dispatch<React.SetStateAction<File | null>>;
+  setImageLink: React.Dispatch<React.SetStateAction<string>>;
+  imageLink: string;
+  setImagePreview: React.Dispatch<React.SetStateAction<string>>;
+  imagePreview: string;
 }
 
-const ImagesInput: React.FC<Props> = ({ setRawImage, imageUrl }) => {
-  const [image, setImage] = useState<File | null>(null);
-  const [imageLink, setImageLink] = useState<string>("");
-  const [imagePreview, setImagePreview] = useState<string>("");
-  const [isLoading, setIsLoading] = useState(false);
+const ImagesInput: React.FC<Props> = ({
+  setRawImage,
+  imageUrl,
+  setImage,
+  setImageLink,
+  imageLink,
+  setImagePreview,
+  imagePreview,
+}) => {
   const [openImage, setOpenImage] = useState(false);
 
   const handleImageLinkChange = (e: { value: string }) => {
     const link = e.value;
 
+    setImage(null);
     setImageLink(link);
     setImagePreview(link);
     setRawImage(link);
@@ -32,36 +37,10 @@ const ImagesInput: React.FC<Props> = ({ setRawImage, imageUrl }) => {
   const handleFileChange = (e: React.ChangeEvent<HTMLInputElement>) => {
     const file = e.target.files ? e.target.files[0] : null;
     if (file) {
+      setRawImage("");
+      setImageLink("");
       setImage(file);
       setImagePreview(URL.createObjectURL(file));
-    }
-  };
-
-  const handleUploadImage = async (e: React.FormEvent) => {
-    e.preventDefault();
-    if (!image) return;
-
-    setIsLoading(true);
-    const formData = new FormData();
-    formData.append("file", image);
-    formData.append("upload_preset", upload_preset);
-    formData.append("cloud_name", cloud_name);
-
-    try {
-      const response = await axios.post(base_url, formData, {
-        headers: {
-          "Content-Type": "multipart/form-data",
-        },
-        withCredentials: false,
-      });
-      const uploadedUrl = response.data.secure_url;
-      setRawImage(uploadedUrl);
-      setImageLink(uploadedUrl);
-      setOpenImage(false);
-    } catch (error) {
-      console.error("Image upload failed:", error);
-    } finally {
-      setIsLoading(false);
     }
   };
 
@@ -77,7 +56,9 @@ const ImagesInput: React.FC<Props> = ({ setRawImage, imageUrl }) => {
       setImageLink(imageUrl);
       setImagePreview(imageUrl);
     }
+    // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [imageUrl]);
+
 
   return (
     <div>
@@ -96,6 +77,9 @@ const ImagesInput: React.FC<Props> = ({ setRawImage, imageUrl }) => {
       ) : (
         <div className={styles.image_input_wrapper}>
           <div className={styles.image_input_wrapper_cont}>
+            <button onClick={() => setOpenImage(!openImage)}>
+              <RiCloseLine color="#3c0174" size={20} />
+            </button>
             <p className="my-2 text-lg">File size 3MB max</p>
 
             <div className={styles.image_input_btn}>
@@ -105,13 +89,6 @@ const ImagesInput: React.FC<Props> = ({ setRawImage, imageUrl }) => {
                 onChange={handleFileChange}
                 className="mb-8"
               />
-
-              <button
-                onClick={handleUploadImage}
-                disabled={!image || isLoading}
-              >
-                {isLoading ? "Uploading..." : "Upload"}
-              </button>
             </div>
           </div>
 

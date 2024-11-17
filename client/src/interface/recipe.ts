@@ -27,6 +27,7 @@ export interface IRecipe {
   recipe: IStreamlinedFavorites;
   liked: boolean;
   disliked: boolean;
+  owner: string;
 }
 
 export interface IStreamlinedFavorites {
