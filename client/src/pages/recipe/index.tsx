@@ -152,9 +152,15 @@ const RecipeById = () => {
 
   useEffect(() => {
     fetchData();
-    fetchReviews();
     // eslint-disable-next-line react-hooks/exhaustive-deps
   }, []);
+
+  useEffect(() => {
+    if (user?.id) {
+      fetchReviews();
+    }
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, [user]);
 
   return (
     <div className={styles.recipe_wrapper}>
@@ -184,14 +190,21 @@ const RecipeById = () => {
           )}
         </div>
 
-        <div className={styles.card_image}>
-          <img
-            src={
-              recipe?.imageUrl ||
-              "https://images.pexels.com/photos/2611817/pexels-photo-2611817.jpeg?auto=compress&cs=tinysrgb&w=800"
-            }
-            alt="recipe"
-          />
+        <div className={styles.card_image_contt}>
+          <div className={styles.card_image}>
+            <img
+              src={
+                recipe?.imageUrl ||
+                "https://images.pexels.com/photos/2611817/pexels-photo-2611817.jpeg?auto=compress&cs=tinysrgb&w=800"
+              }
+              alt="recipe"
+            />
+          </div>
+
+          <div className={styles.instrctns}>
+            <h2>Description:</h2>
+            <p className={styles.desc}>{recipe?.desc || ""}</p>
+          </div>
         </div>
 
         <div className={styles.instrctns}>
@@ -207,11 +220,6 @@ const RecipeById = () => {
         <div className={styles.instrctns}>
           <h2>Instructions:</h2>
           <p className={styles.desc}>{recipe?.instructions || ""}</p>
-        </div>
-
-        <div className={styles.instrctns}>
-          <h2>Description:</h2>
-          <p className={styles.desc}>{recipe?.desc || ""}</p>
         </div>
       </div>
 
