@@ -81,16 +81,14 @@ const RecipeById = () => {
     setLoading(true);
 
     try {
-      const { data } = like
-        ? await axios.put(`/recipe/${String(idd)}/like`, { userId: user?.id })
-        : await axios.put(`/recipe/${String(idd)}/dislike`, {
-            userId: user?.id,
-          });
+      const { data } = await axios.put(`/recipe/${String(idd)}/like`, {
+        type: like ? "like" : "dislike",
+      });
 
       if (data.status) {
         toast.success(data.message);
 
-        setRecipe(data.data);
+        fetchData();
         setLiked(like && !liked);
         setDisliked(!like && !disliked);
       } else if (!data.status) {

@@ -70,7 +70,13 @@
 
     .footer_idv {
       display: flex;
+      align-items: center;
       gap: 2px;
+      background: none;
+      border: none;
+      outline: none;
+      margin: 0;
+      padding: 0;
 
       p {
         font-size: 12px;

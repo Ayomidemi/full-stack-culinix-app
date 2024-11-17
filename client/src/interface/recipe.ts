@@ -25,6 +25,8 @@ export interface IRecipe {
   cookTime: string;
   category: [];
   recipe: IStreamlinedFavorites;
+  liked: boolean;
+  disliked: boolean;
 }
 
 export interface IStreamlinedFavorites {
@@ -41,6 +43,8 @@ export interface IStreamlinedFavorites {
     name: string;
   };
   isFavorite: boolean;
+  liked: boolean;
+  disliked: boolean;
 }
 
 export interface IReview {

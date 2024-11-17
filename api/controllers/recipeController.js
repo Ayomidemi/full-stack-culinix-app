@@ -1,6 +1,24 @@
 const jwt = require("jsonwebtoken");
 const RecipeModel = require("../models/RecipeModel");
 const FavoritesModel = require("../models/FavoritesModel");
+const LikesModel = require("../models/LikesModel");
+
+// utility function for likes and dislikes
+const getLikesDislikesForRecipe = async (recipeId, userId) => {
+  const likes = await LikesModel.countDocuments({ recipeId, like: true });
+  const dislikes = await LikesModel.countDocuments({ recipeId, dislike: true });
+
+  if (!userId) {
+    return { likes, dislikes, liked: false, disliked: false };
+  }
+
+  const likedByMe = await LikesModel.findOne({ recipeId, userId });
+
+  const liked = likedByMe?.like || false;
+  const disliked = likedByMe?.dislike || false;
+
+  return { likes, dislikes, liked, disliked };
+};
 
 // Create a new recipe
 const createRecipe = async (req, res) => {
@@ -74,6 +92,17 @@ const updateRecipe = async (req, res) => {
 const getAllRecipes = async (req, res) => {
   try {
     const { page = 1, limit = 10, search = "" } = req.query;
+    const { token } = req.cookies;
+    let userId = null;
+
+    if (token) {
+      try {
+        const user = jwt.verify(token, process.env.JWT_SECRET);
+        userId = user.id;
+      } catch (err) {
+        console.log("Invalid token:", err);
+      }
+    }
 
     const searchQuery = {
       $or: [
@@ -89,10 +118,35 @@ const getAllRecipes = async (req, res) => {
       .skip((page - 1) * limit)
       .limit(Number(limit));
 
+    const streamRecipes = await Promise.all(
+      recipes.map(async (recipee) => {
+        const { likes, dislikes, liked, disliked } =
+          await getLikesDislikesForRecipe(recipee._id, userId);
+        return {
+          _id: recipee._id,
+          kitchen: {
+            name: recipee.kitchen.name,
+            email: recipee.kitchen.email,
+          },
+          name: recipee.name,
+          desc: recipee.desc,
+          _id: recipee._id,
+          imageUrl: recipee.imageUrl,
+          likes,
+          dislikes,
+          liked,
+          disliked,
+          views: recipee.views,
+          createdAt: recipee.createdAt,
+          isFavorite: recipee.isFavorite,
+        };
+      })
+    );
+
     res.json({
       status: true,
       message: "Recipes fetched successfully",
-      data: recipes,
+      data: streamRecipes,
       total: Math.ceil(totalRecipes / limit),
     });
   } catch (error) {
@@ -107,13 +161,13 @@ const getAllRecipes = async (req, res) => {
 const getRecipeById = async (req, res) => {
   try {
     const { id } = req.params;
-    const token = req.cookies.token || req.headers.authorization?.split(" ")[1];
+    const { token } = req.cookies;
     let userId = null;
 
     if (token) {
       try {
-        const decoded = jwt.verify(token, process.env.JWT_SECRET);
-        userId = decoded.id;
+        const user = jwt.verify(token, process.env.JWT_SECRET);
+        userId = user.id;
       } catch (err) {
         console.log("Invalid token:", err);
       }
@@ -144,14 +198,21 @@ const getRecipeById = async (req, res) => {
       isFavorite = !!favorite;
     }
 
-    // Check for like/dislike status if user ID is available
-    const liked = userId ? recipe.likedBy.includes(userId) : false;
-    const disliked = userId ? recipe.dislikedBy.includes(userId) : false;
+    // likes and dislikes
+    const { likes, dislikes, liked, disliked } =
+      await getLikesDislikesForRecipe(id, userId);
 
     res.json({
       status: true,
       message: "Recipe fetched successfully",
-      data: { ...recipe.toObject(), liked, disliked, isFavorite },
+      data: {
+        ...recipe.toObject(),
+        isFavorite,
+        likes,
+        dislikes,
+        liked,
+        disliked,
+      },
     });
   } catch (error) {
     console.log(error);
@@ -186,11 +247,36 @@ const getUserRecipes = async (req, res) => {
         .skip((page - 1) * limit)
         .limit(Number(limit));
 
+      const streamRecipes = await Promise.all(
+        recipes.map(async (recipee) => {
+          const { likes, dislikes, liked, disliked } =
+            await getLikesDislikesForRecipe(recipee._id, user.id);
+          return {
+            _id: recipee._id,
+            kitchen: {
+              name: recipee.kitchen.name,
+              email: recipee.kitchen.email,
+            },
+            name: recipee.name,
+            desc: recipee.desc,
+            _id: recipee._id,
+            imageUrl: recipee.imageUrl,
+            likes,
+            dislikes,
+            liked,
+            disliked,
+            views: recipee.views,
+            createdAt: recipee.createdAt,
+            isFavorite: recipee.isFavorite,
+          };
+        })
+      );
+
       res.json({
         status: true,
         message: "Recipes fetched successfully",
         total: Math.ceil(totalRecipes / limit),
-        data: recipes,
+        data: streamRecipes,
       });
     });
   } catch (error) {
@@ -226,94 +312,66 @@ const deleteRecipe = async (req, res) => {
   }
 };
 
-// liked recipe users list
-const likeRecipeByUsers = async (req, res) => {
-  try {
-    const { id } = req.params;
-    const { userId } = req.body;
+// liked and disliked recipe users list
+const likeDislikeRecipe = async (req, res) => {
+  const { recipeId } = req.params;
+  const { type } = req.body;
+  const { token } = req.cookies;
 
-    const recipe = await RecipeModel.findById(id);
-
-    if (!recipe) {
-      return res
-        .status(404)
-        .json({ status: false, message: "Recipe not found" });
+  jwt.verify(token, process.env.JWT_SECRET, async (err, user) => {
+    if (err) {
+      return res.status(401).json({
+        status: false,
+        message: "Unauthorized. Invalid token.",
+      });
     }
 
-    // Check if user has already liked the recipe
-    const likedIndex = recipe.likedBy.indexOf(userId);
-    const dislikedIndex = recipe.dislikedBy.indexOf(userId);
+    const userId = user.id;
 
-    if (likedIndex === -1) {
-      // Add like
-      recipe.likedBy.push(userId);
-      recipe.likes += 1;
-
-      // Remove dislike if present
-      if (dislikedIndex !== -1) {
-        recipe.dislikedBy.splice(dislikedIndex, 1);
-        recipe.dislikes -= 1;
+    try {
+      // check for enum type
+      if (!["like", "dislike"].includes(type)) {
+        return res.status(400).json({
+          status: false,
+          message: "Invalid type. Must be either 'like' or 'dislike'",
+        });
       }
-    } else {
-      // Remove like if already liked
-      recipe.likedBy.splice(likedIndex, 1);
-      recipe.likes -= 1;
-    }
 
-    await recipe.save();
+      let liked = await LikesModel.findOne({ userId, recipeId });
 
-    res.json({ status: true, message: "Like status updated", data: recipe });
-  } catch (error) {
-    res.status(500).json({
-      status: false,
-      message: "An error occurred while updating like status",
-    });
-  }
-};
-
-// disliked recipe users list
-const dislikeRecipeByUsers = async (req, res) => {
-  try {
-    const { id } = req.params; // Recipe ID
-    const { userId } = req.body; // User ID of the person disliking the recipe
-
-    const recipe = await RecipeModel.findById(id);
-
-    if (!recipe) {
-      return res
-        .status(404)
-        .json({ status: false, message: "Recipe not found!" });
-    }
-
-    // Check if user has already disliked the recipe
-    const dislikedIndex = recipe.dislikedBy.indexOf(userId);
-    const likedIndex = recipe.likedBy.indexOf(userId);
-
-    if (dislikedIndex === -1) {
-      // Add dislike
-      recipe.dislikedBy.push(userId);
-      recipe.dislikes += 1;
-
-      // Remove like if present
-      if (likedIndex !== -1) {
-        recipe.likedBy.splice(likedIndex, 1);
-        recipe.likes -= 1;
+      if (!liked) {
+        liked = new LikesModel({
+          userId,
+          recipeId,
+          like: type === "like",
+          dislike: type === "dislike",
+        });
+      } else {
+        if (type === "like") {
+          liked.like = !liked.like;
+          if (liked.like) liked.dislike = false;
+        } else if (type === "dislike") {
+          liked.dislike = !liked.dislike;
+          if (liked.dislike) liked.like = false;
+        }
       }
-    } else {
-      // Remove dislike if already disliked
-      recipe.dislikedBy.splice(dislikedIndex, 1);
-      recipe.dislikes -= 1;
+
+      await liked.save();
+
+      res.json({
+        status: true,
+        message: `${
+          type.charAt(0).toUpperCase() + type.slice(1)
+        } status updated`,
+        data: liked,
+      });
+    } catch (error) {
+      res.status(500).json({
+        status: false,
+        message: "An error occurred while updating like/dislike status",
+      });
     }
-
-    await recipe.save();
-
-    res.json({ status: true, message: "Dislike status updated", data: recipe });
-  } catch (error) {
-    res.status(500).json({
-      status: false,
-      message: "An error occurred while updating dislike status",
-    });
-  }
+  });
 };
 
 // favorite recipe by users
@@ -369,24 +427,31 @@ const getFavorites = async (req, res) => {
         "recipeId"
       );
 
-      const streamlinedFavorites = favorites.map((favorite) => ({
-        _id: favorite._id,
-        recipe: {
-          kitchen: {
-            name: favorite.recipeId.kitchen.name,
-            email: favorite.recipeId.kitchen.email,
-          },
-          name: favorite.recipeId.name,
-          desc: favorite.recipeId.desc,
-          _id: favorite.recipeId._id,
-          imageUrl: favorite.recipeId.imageUrl,
-          likes: favorite.recipeId.likes,
-          dislikes: favorite.recipeId.dislikes,
-          views: favorite.recipeId.views,
-          createdAt: favorite.recipeId.createdAt,
-          isFavorite: true,
-        },
-      }));
+      const streamlinedFavorites = await Promise.all(
+        favorites.map(async (favorite) => {
+          const { likes, dislikes } = await getLikesDislikesForRecipe(
+            favorite.recipeId._id
+          );
+          return {
+            _id: favorite._id,
+            recipe: {
+              kitchen: {
+                name: favorite.recipeId.kitchen.name,
+                email: favorite.recipeId.kitchen.email,
+              },
+              name: favorite.recipeId.name,
+              desc: favorite.recipeId.desc,
+              _id: favorite.recipeId._id,
+              imageUrl: favorite.recipeId.imageUrl,
+              likes,
+              dislikes,
+              views: favorite.recipeId.views,
+              createdAt: favorite.recipeId.createdAt,
+              isFavorite: true,
+            },
+          };
+        })
+      );
 
       res.json({
         status: true,
@@ -408,8 +473,7 @@ module.exports = {
   getRecipeById,
   getUserRecipes,
   deleteRecipe,
-  likeRecipeByUsers,
-  dislikeRecipeByUsers,
+  likeDislikeRecipe,
   addRemoveFavorite,
   getFavorites,
 };

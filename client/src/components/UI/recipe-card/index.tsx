@@ -1,7 +1,7 @@
-import { useContext } from "react";
+import { useContext, useEffect, useState } from "react";
 import axios from "axios";
 import { IoEyeOutline } from "react-icons/io5";
-import { BiLike, BiDislike } from "react-icons/bi";
+import { BiLike, BiDislike, BiSolidDislike, BiSolidLike } from "react-icons/bi";
 import { MdFavorite } from "react-icons/md";
 import { format } from "date-fns";
 import { useNavigate } from "react-router-dom";
@@ -26,6 +26,8 @@ const RecipeCard = ({
 }: Props) => {
   const navigate = useNavigate();
   const { user } = useContext(UserContext);
+  const [liked, setLiked] = useState(false);
+  const [disliked, setDisliked] = useState(false);
 
   const handleAddRemoveFavorite = async () => {
     try {
@@ -48,6 +50,37 @@ const RecipeCard = ({
       toast.error(error.response.data.message);
     }
   };
+
+  const handleLikeRecipe = async (like: boolean) => {
+    try {
+      const { data } = await axios.put(`/recipe/${String(recipe?._id)}/like`, {
+        type: like ? "like" : "dislike",
+      });
+
+      if (data.status) {
+        toast.success(data.message);
+
+        setLiked(like && !liked);
+        setDisliked(!like && !disliked);
+        fetchData();
+      } else if (!data.status) {
+        toast.error(data.message);
+      }
+
+      // eslint-disable-next-line @typescript-eslint/no-explicit-any
+    } catch (error: any) {
+      toast.error(error.response.data.message);
+    }
+  };
+
+  useEffect(() => {
+    if (recipe?.liked) {
+      setLiked(true);
+    }
+    if (recipe?.disliked) {
+      setDisliked(true);
+    }
+  }, [recipe]);
 
   return (
     <div className={styles.card_wrap}>
@@ -91,13 +124,23 @@ const RecipeCard = ({
             </div>
           ) : (
             <>
-              <div className={styles.footer_idv}>
-                <BiLike /> <p>{recipe?.likes || 0}</p>
-              </div>
+              <button
+                className={styles.footer_idv}
+                onClick={() => handleLikeRecipe(true)}
+                disabled={!user?.id}
+              >
+                {liked ? <BiSolidLike /> : <BiLike />}{" "}
+                <p>{recipe?.likes || 0}</p>
+              </button>
 
-              <div className={styles.footer_idv}>
-                <BiDislike /> <p>{recipe?.dislikes || 0}</p>
-              </div>
+              <button
+                className={styles.footer_idv}
+                onClick={() => handleLikeRecipe(false)}
+                disabled={!user?.id}
+              >
+                {disliked ? <BiSolidDislike /> : <BiDislike />}{" "}
+                <p>{recipe?.dislikes || 0}</p>
+              </button>
             </>
           )}
 
