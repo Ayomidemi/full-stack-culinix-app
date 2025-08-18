@@ -207,6 +207,9 @@ const CreateRecipe = () => {
     "Stir-Fried",
     "Braised",
     "Boiled",
+    "Sautéed",
+    "Sauteed",
+    "Sauteed",
     "Other",
   ];
 
