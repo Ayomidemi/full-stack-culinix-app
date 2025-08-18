@@ -193,7 +193,6 @@ const CreateRecipe = () => {
     "Dinner",
     "Side Dish",
     "Sauce",
-    "Dip",
     "Marinade",
     "Spread",
     "Condiment",
