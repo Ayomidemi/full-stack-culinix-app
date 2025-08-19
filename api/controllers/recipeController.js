@@ -286,7 +286,6 @@ const getUserRecipes = async (req, res) => {
   }
 };
 
-// delete recipe by id
 const deleteRecipe = async (req, res) => {
   try {
     const { token } = req.cookies;
