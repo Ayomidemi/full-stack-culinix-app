@@ -123,9 +123,9 @@ const CreateRecipe = () => {
     try {
       const uploadedUrl = await handleImageUpload();
 
-    if (uploadedUrl) {
-      details.imageUrl = uploadedUrl;
-    }
+      if (uploadedUrl) {
+        details.imageUrl = uploadedUrl;
+      }
 
       const { data } = idd
         ? await axios.put(`/recipe/update-recipe/${idd}`, details)
@@ -273,22 +273,7 @@ const CreateRecipe = () => {
                     }
                   }}
                 />
-                <p>Press enter to add a new ingredient</p>
-
-                {/* <Button
-                  text="Add"
-                  variant="secondary"
-                  onClick={(e: { preventDefault: () => void }) => {
-                    e.preventDefault();
-
-                    setDetails({
-                      ...details,
-                      ingredients: [...details.ingredients, ingredient],
-                    });
-                    setIngredient("");
-                  }}
-                  disabled={!ingredient}
-                /> */}
+                <p>Press enter to add a new ingredient.</p>
               </div>
 
               {details?.ingredients?.length > 0 && (
