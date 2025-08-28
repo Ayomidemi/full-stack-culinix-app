@@ -28,6 +28,14 @@ const DumpComponent = () => {
       <p>Edited line 26</p>
       <p>Edited line 27</p>
       <p>Edited line 28</p>
+      <p>Edited line 29</p>
+      <p>Edited line 30</p>
+      <p>Edited line 31</p>
+      <p>Edited line 32</p>
+      <p>Edited line 33</p>
+      <p>Edited line 34</p>
+      <p>Edited line 35</p>
+      <p>Edited line 36</p>
     </div>
   );
 };
