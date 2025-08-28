@@ -7,8 +7,6 @@ const DumpComponent = () => {
       <p>Edited line 4</p>
       <p>Edited line 5</p>
       <p>Edited line 6</p>
-      <p>Edited line 7</p>
-      <p>Edited line 8</p>
     </div>
   );
 };
