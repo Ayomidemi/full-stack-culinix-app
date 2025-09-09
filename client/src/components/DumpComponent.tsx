@@ -47,6 +47,7 @@ const DumpComponent = () => {
       <p>Edited line 44</p>
       <p>Edited line 45</p>
       <p>Edited line 46</p>
+      <p>Edited line 47</p>
     </div>
   );
 };
